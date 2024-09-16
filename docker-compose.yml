@@ -1,21 +1,91 @@
-version: '3'
+version: '3.8'
+
 services:
   zookeeper:
-    image: confluentinc/cp-zookeeper:latest
-    environment:
-      ZOOKEEPER_CLIENT_PORT: 2181
+    image: wurstmeister/zookeeper
     ports:
       - "2181:2181"
 
   kafka:
-    image: confluentinc/cp-kafka:latest
+    image: wurstmeister/kafka
     depends_on:
       - zookeeper
     ports:
       - "9092:9092"
     environment:
+      KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
-      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_CREATE_TOPICS: "topicA:1:1,topicB:1:1"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - kafka-network
 
-      
+  flink-jobmanager:
+    image: flink:1.17
+    command: jobmanager
+    ports:
+      - "8081:8081"
+    environment:
+      - |
+        FLINK_PROPERTIES=
+        jobmanager.rpc.address: flink-jobmanager
+    depends_on:
+      - kafka
+    networks:
+      - kafka-network
+    volumes:
+      - ./flink-job:/opt/flink/usrlib
+
+  flink-taskmanager:
+    image: flink:1.17
+    command: taskmanager
+    depends_on:
+      - flink-jobmanager
+    environment:
+      - |
+        FLINK_PROPERTIES=
+        jobmanager.rpc.address: flink-jobmanager
+    networks:
+      - kafka-network
+    volumes:
+      - ./flink-job:/opt/flink/usrlib
+
+  hadoop:
+    image: bde2020/hadoop-namenode:2.0.0-hadoop3.2.1-java8
+    container_name: hadoop
+    environment:
+      - CLUSTER_NAME=demo
+    ports:
+      - "9870:9870"
+      - "9000:9000"
+    networks:
+      - kafka-network
+
+  grafana:
+    image: grafana/grafana
+    ports:
+      - "3000:3000"
+    networks:
+      - kafka-network
+
+  load-generator:
+    build: ./load-generator
+    depends_on:
+      - kafka
+    networks:
+      - kafka-network
+
+  data-sink:
+    build: ./data-sink
+    depends_on:
+      - kafka
+      - hadoop
+    networks:
+      - kafka-network
+
+networks:
+  kafka-network:

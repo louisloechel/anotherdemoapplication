@@ -15,3 +15,21 @@ This is a demo application for a Master's thesis project.
 - [ ] graphana dashboard
 - [ ] Kafka topic B
 - [ ] HDFS long term storage
+
+### How to run:
+
+Build the docker images:
+```bash
+docker-compose build
+```
+
+Run the services:
+```bash
+docker-compose up
+```
+
+Access the services:
+- Kafka: Use kafka:9092 within Docker containers.
+- Grafana: http://localhost:3000
+- Flink Web UI: http://localhost:8081
+- HDFS Namenode UI: http://localhost:9870

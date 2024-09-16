@@ -2,16 +2,21 @@ from kafka import KafkaProducer
 import csv
 import json
 import time
+import os
 
-producer = KafkaProducer(bootstrap_servers='localhost:9092')
+KAFKA_BOOTSTRAP_SERVERS = os.getenv('KAFKA_BOOTSTRAP_SERVERS', 'kafka:9092')
 
-with open('data.csv', mode='r') as csv_file:
+producer = KafkaProducer(
+    bootstrap_servers=KAFKA_BOOTSTRAP_SERVERS,
+    value_serializer=lambda x: json.dumps(x).encode('utf-8')
+)
+
+with open('data.csv', 'r') as csv_file:
     csv_reader = csv.DictReader(csv_file)
     for row in csv_reader:
-        message = json.dumps(row).encode('utf-8')
-        producer.send('topicA', message)
-        print(f"Sent: {message}")
-        time.sleep(1)  # Throttle the messages
+        producer.send('topicA', value=row)
+        print(f"Sent: {row}")
+        time.sleep(1)
 
 producer.flush()
 producer.close()
