@@ -1,5 +1,7 @@
 # anotherdemoapplication
 
+![](else/approach.jpeg)
+
 This is a demo application for a Master's thesis project.
 ### Fundamental ideas:
 - k8s deployment
