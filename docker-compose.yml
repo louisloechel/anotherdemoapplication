@@ -79,6 +79,15 @@ services:
     networks:
       - kafka-network
 
+  prometheus:
+    image: prom/prometheus
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+    networks:
+      - kafka-network
+
   data-sink:
     build: ./data-sink
     depends_on:
