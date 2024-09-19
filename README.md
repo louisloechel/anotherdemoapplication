@@ -1,6 +1,6 @@
 # anotherdemoapplication
 
-![](else/approach.jpeg)
+![](else/architecture.png)
 
 This is a demo application for a Master's thesis project.
 ### Fundamental ideas:
