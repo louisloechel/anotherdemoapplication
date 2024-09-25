@@ -11,11 +11,11 @@ This is a demo application for a Master's thesis project.
 
 ### Roadmap:
 - [x] Set up Repo
-- [ ] load generator service
-- [ ] Kafka topic A
-- [ ] data sink service
+- [x] load generator service
+- [x] Kafka topic A
+- [x] consumer service
+- [x] Flink/Prink job
 - [ ] graphana dashboard
-- [ ] Kafka topic B
 - [ ] HDFS long term storage
 
 ### How to run:
