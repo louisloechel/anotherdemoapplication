@@ -2,103 +2,77 @@ version: '3.8'
 
 services:
   zookeeper:
-    image: wurstmeister/zookeeper
+    image: 'bitnami/zookeeper:latest'
+    environment:
+      - ALLOW_ANONYMOUS_LOGIN=yes
     ports:
-      - "2181:2181"
+      - '2181:2181'
+    networks:
+      - kafka-network
 
   kafka:
-    image: wurstmeister/kafka
+    image: 'bitnami/kafka:latest'
+    environment:
+      - KAFKA_BROKER_ID=1
+      - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
+      - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092
+      - KAFKA_LISTENERS=PLAINTEXT://0.0.0.0:9092
+      - ALLOW_PLAINTEXT_LISTENER=yes
+    ports:
+      - '9092:9092'
     depends_on:
       - zookeeper
-    ports:
-      - "9092:9092"
-      - "5556:5556"
-    environment:
-      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
-      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092
-      KAFKA_JMX_PORT: 5556
-      KAFKA_JMX_HOSTNAME: kafka
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-      - ./kafka/jmx_prometheus_javaagent-0.18.0.jar:/usr/share/jmx_exporter/jmx_prometheus_javaagent.jar
-      - ./kafka/kafka-jmx-config.yml:/etc/jmx-exporter/kafka-jmx-config.yml
-    command: >
-      sh -c "export KAFKA_OPTS=\"-javaagent:/usr/share/jmx_exporter/jmx_prometheus_javaagent.jar=5556:/etc/jmx-exporter/kafka-jmx-config.yml\" && start-kafka.sh"
+    networks:
+      - kafka-network
+    healthcheck:
+      test: ["CMD", "kafka-topics.sh", "--list", "--bootstrap-server", "localhost:9092"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+
+  load-generator:
+    build:
+      context: ./load-generator
+    depends_on:
+      kafka:
+        condition: service_healthy
     networks:
       - kafka-network
 
   flink-jobmanager:
-    image: flink:1.17
+    image: flink:1.15-scala_2.12
     command: jobmanager
     ports:
-      - "8081:8081"
+      - '8081:8081'
     environment:
       - |
         FLINK_PROPERTIES=
         jobmanager.rpc.address: flink-jobmanager
-    depends_on:
-      - kafka
     networks:
       - kafka-network
-    volumes:
-      - ./flink-job:/opt/flink/usrlib
 
   flink-taskmanager:
-    image: flink:1.17
+    image: flink:1.15-scala_2.12
     command: taskmanager
     depends_on:
       - flink-jobmanager
+    scale: 1
     environment:
       - |
         FLINK_PROPERTIES=
         jobmanager.rpc.address: flink-jobmanager
     networks:
       - kafka-network
-    volumes:
-      - ./flink-job:/opt/flink/usrlib
 
-  hadoop:
-    image: bde2020/hadoop-namenode:2.0.0-hadoop3.2.1-java8
-    container_name: hadoop
-    environment:
-      - CLUSTER_NAME=demo
-    ports:
-      - "9870:9870"
-      - "9000:9000"
-    networks:
-      - kafka-network
-
-  grafana:
-    image: grafana/grafana
-    ports:
-      - "3000:3000"
-    networks:
-      - kafka-network
-
-  load-generator:
-    build: ./load-generator
+  kafka-consumer:
+    build:
+      context: ./consumer-service
     depends_on:
-      - kafka
-    networks:
-      - kafka-network
-
-  prometheus:
-    image: prom/prometheus
-    volumes:
-      - ./prometheus.yml:/etc/prometheus/prometheus.yml
-    ports:
-      - "9090:9090"
-    networks:
-      - kafka-network
-
-  data-sink:
-    build: ./data-sink
-    depends_on:
-      - kafka
-      - hadoop
+      kafka:
+        condition: service_healthy
     networks:
       - kafka-network
 
 networks:
   kafka-network:
+    driver: bridge
