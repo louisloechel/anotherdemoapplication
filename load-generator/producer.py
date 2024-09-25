@@ -20,7 +20,7 @@ def main():
             except KafkaError as e:
                 print(f'{time.strftime("%Y-%m-%d %H:%M:%S")} Failed to send message: {e}')
             message_count += 1
-            time.sleep(1)  # Ensure this is inside the loop
+            time.sleep(0.1)  # Ensure this is inside the loop
     except NoBrokersAvailable:
         print(f'{time.strftime("%Y-%m-%d %H:%M:%S")} No brokers available.')
     except Exception as e:
