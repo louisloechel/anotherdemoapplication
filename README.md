@@ -12,26 +12,19 @@ This is a demo application for a Master's thesis project.
 ### Roadmap:
 - [x] Set up Repo
 - [x] load generator service
-- [x] Kafka topic A
+- [x] Kafka topic
 - [x] consumer service
-- [x] Flink/Prink job
-- [ ] graphana dashboard
+- [ ] Flink/Prink job
+- [x] graphana dashboard
 - [ ] HDFS long term storage
 
 ### How to run:
 
-Build the docker images:
+Build & run the docker images:
 ```bash
-docker-compose build
+docker-compose up --build
 ```
 
-Run the services:
-```bash
-docker-compose up
-```
-
-Access the services:
-- Kafka: Use kafka:9092 within Docker containers.
+Grafana Dashboard:
 - Grafana: http://localhost:3000
-- Flink Web UI: http://localhost:8081
-- HDFS Namenode UI: http://localhost:9870
+- Query: ```kafka_consumer_messages_total```
