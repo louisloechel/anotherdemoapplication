@@ -72,6 +72,28 @@ services:
         condition: service_healthy
     networks:
       - kafka-network
+    ports:
+      - "8000:8000"  # Exposed the metrics port for Prometheus scraping
+
+  prometheus:
+    image: prom/prometheus
+    ports:
+      - '9090:9090'
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+    networks:
+      - kafka-network
+
+  grafana:
+    image: grafana/grafana
+    ports:
+      - '3000:3000'
+    volumes:
+      - ./grafana:/var/lib/grafana
+    depends_on:
+      - prometheus
+    networks:
+      - kafka-network
 
 networks:
   kafka-network:

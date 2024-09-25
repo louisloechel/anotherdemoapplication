@@ -8,7 +8,7 @@ WORKDIR /app
 COPY . /app
 
 # Install any necessary Python dependencies
-RUN pip install confluent_kafka
+RUN pip install confluent_kafka prometheus_client
 
 # Run the consumer when the container launches
 CMD ["python", "consumer.py"]

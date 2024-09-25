@@ -1,0 +1,7 @@
+global:
+  scrape_interval: 5s # How frequently Prometheus will scrape the metrics
+
+scrape_configs:
+  - job_name: "kafka_consumer"
+    static_configs:
+      - targets: ["kafka-consumer:8000"] # This is the consumer service that will expose metrics

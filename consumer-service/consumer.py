@@ -1,4 +1,8 @@
 from confluent_kafka import Consumer, KafkaError, KafkaException
+from prometheus_client import start_http_server, Counter
+
+# Prometheus counter for tracking the number of messages
+MESSAGE_COUNTER = Counter('kafka_consumer_messages_total', 'Total number of messages consumed')
 
 # Define Kafka consumer configuration
 conf = {
@@ -11,7 +15,7 @@ conf = {
 consumer = Consumer(conf)
 
 # Subscribe to a Kafka topic
-topic = 'my-topic'  # Replace 'your_topic' with the actual Kafka topic name you're using
+topic = 'my-topic'  
 consumer.subscribe([topic])
 
 def consume_messages():
@@ -34,6 +38,7 @@ def consume_messages():
             else:
                 # Properly received a message
                 print(f"Received message: {msg.value().decode('utf-8')} from topic: {msg.topic()} partition: {msg.partition()}")
+                MESSAGE_COUNTER.inc()  # Increment the Prometheus counter for each message consumed
     except KeyboardInterrupt:
         print("Consumer interrupted")
     finally:
@@ -41,4 +46,5 @@ def consume_messages():
         consumer.close()
 
 if __name__ == "__main__":
+    start_http_server(8000)  # Start the Prometheus metrics server on port 8000
     consume_messages()
