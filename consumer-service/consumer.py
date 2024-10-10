@@ -20,8 +20,8 @@ conf = {
 consumer = Consumer(conf)
 
 # Subscribe to a Kafka topic
-topic = 'my-topic'  
-# topic = 'processed-topic'
+# topic = 'raw-topic'  
+topic = 'processed-topic'
 consumer.subscribe([topic])
 
 def consume_messages():

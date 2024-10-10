@@ -13,7 +13,8 @@ def main():
                 max_block_ms=10000,  # Fail if unable to send after 10 seconds
                 retries=0  # Do not retry indefinitely
             )
-            topic = 'my-topic'
+            # topic = 'raw-topic'
+            topic = 'processed-topic'
             message_count = 0
 
             while True:

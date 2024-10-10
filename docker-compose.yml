@@ -50,30 +50,30 @@ services:
     ports:
       - "8000:8000"  # Exposed the metrics port for Prometheus scraping
 
-  # flink-jobmanager:
-  #   image: apache/flink:1.14
-  #   command: jobmanager
-  #   ports:
-  #     - '8081:8081'
-  #   environment:
-  #     - |
-  #       FLINK_PROPERTIES=
-  #       jobmanager.rpc.address: flink-jobmanager
-  #   networks:
-  #     - kafka-network
+  flink-jobmanager:
+    image: apache/flink:1.14
+    command: jobmanager
+    ports:
+      - '8081:8081'
+    environment:
+      - |
+        FLINK_PROPERTIES=
+        jobmanager.rpc.address: flink-jobmanager
+    networks:
+      - kafka-network
 
-  # flink-taskmanager:
-  #   image: flink:1.15-scala_2.12
-  #   command: taskmanager
-  #   depends_on:
-  #     - flink-jobmanager
-  #   scale: 1
-  #   environment:
-  #     - |
-  #       FLINK_PROPERTIES=
-  #       jobmanager.rpc.address: flink-jobmanager
-  #   networks:
-  #     - kafka-network
+  flink-taskmanager:
+    image: flink:1.15-scala_2.12
+    command: taskmanager
+    depends_on:
+      - flink-jobmanager
+    scale: 1
+    environment:
+      - |
+        FLINK_PROPERTIES=
+        jobmanager.rpc.address: flink-jobmanager
+    networks:
+      - kafka-network
 
   # flink-job:
   #   build:
