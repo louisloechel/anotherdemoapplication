@@ -11,7 +11,7 @@ MESSAGE_COUNTER = Counter('kafka_consumer_messages_total', 'Total number of mess
 
 # Define Kafka consumer configuration
 conf = {
-    'bootstrap.servers': 'kafka:9092',  # Kafka service defined in docker-compose.yml
+    'bootstrap.servers': 'kafka:29092',  # Kafka service defined in docker-compose.yml
     'group.id': 'my-consumer-group',     # Consumer group ID
     'auto.offset.reset': 'earliest',      # Start consuming from the earliest message if no offset is present
 }

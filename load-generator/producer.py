@@ -9,7 +9,7 @@ def main():
     while retries > 0:
         try:
             producer = KafkaProducer(
-                bootstrap_servers='kafka:9092',
+                bootstrap_servers='kafka:29092',
                 max_block_ms=10000,  # Fail if unable to send after 10 seconds
                 retries=0  # Do not retry indefinitely
             )
