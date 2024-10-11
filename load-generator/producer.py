@@ -14,14 +14,24 @@ def main():
                 retries=0  # Do not retry indefinitely
             )
             topic = 'raw-topic'
-            # topic = 'processed-topic'
+
+            producer2 = KafkaProducer(
+                bootstrap_servers='kafka:29092',
+                max_block_ms=10000,  # Fail if unable to send after 10 seconds
+                retries=0  # Do not retry indefinitely
+            )
+            topic2 = 'processed-topic'
             message_count = 0
 
             while True:
                 message = json.dumps({"message_count": message_count}).encode('utf-8')
                 try:
-                    producer.send(topic, value=message)
-                    print(f'Sent: {message} to Topic: {topic}', flush=True)
+                    if message_count % 2 == 0:
+                        producer.send(topic, value=message)
+                        print(f'Sent: {message} to Topic: {topic}', flush=True)
+                    else:
+                        producer2.send(topic2, value=message)
+                        print(f'Sent: {message} to Topic: {topic2}', flush=True)
                 except KafkaError as e:
                     print(f'{time.strftime("%Y-%m-%d %H:%M:%S")} Failed to send message: {e}', flush=True)
                 message_count += 1
