@@ -20,12 +20,18 @@ conf = {
 consumer = Consumer(conf)
 
 # Subscribe to a Kafka topic
-topic = 'raw-topic'  
-# topic = 'processed-topic'
+# topic = 'raw-topic'  
+topic = 'processed-topic'
 consumer.subscribe([topic])
 
+# Wait for the topic to be available
+sleeptime = 10
+print(f"Waiting {sleeptime}s for Kafka topic {topic} to be available...", flush=True)
+time.sleep(sleeptime)
+print("Starting consumer...", flush=True)
+
 def consume_messages():
-    print(f"Subscribed to Kafka topic: {topic}", flush=True)
+    print(f"Subscribing to Kafka topic: {topic}", flush=True)
     try:
         while True:
             msg = consumer.poll(timeout=1.0)  # Poll for a new message from the topic
