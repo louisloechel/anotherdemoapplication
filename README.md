@@ -14,7 +14,7 @@ This is a demo application for a Master's thesis project.
 - [x] load generator service
 - [x] Kafka topic
 - [x] consumer service
-- [ ] Flink/Prink job
+- [x] Flink/Prink job
 - [x] graphana dashboard
 - [ ] HDFS long term storage
 
