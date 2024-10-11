@@ -49,7 +49,7 @@ public class KafkaFlinkJob {
                 // This is where the privacy enhancing transformation would be implemented
 
                 // floor the message count to the nearest 10
-                messageCount = messageCount - (messageCount % 10);
+                messageCount = messageCount - (messageCount % 100);
 
                 //--------------------------------------------------------------------------------|
                 //--------------------------------------------------------------------------------|
