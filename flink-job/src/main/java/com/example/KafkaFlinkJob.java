@@ -44,6 +44,16 @@ public class KafkaFlinkJob {
                 // Log the received message
                 LOG.info("Received message: {}", messageCount);
 
+                //--------------------------------------------------------------------------------|
+                //--------------------------------------------------------------------------------|
+                // This is where the privacy enhancing transformation would be implemented
+
+                // floor the message count to the nearest 10
+                messageCount = messageCount - (messageCount % 10);
+
+                //--------------------------------------------------------------------------------|
+                //--------------------------------------------------------------------------------|
+
                 // Create a new JSON object with the same format
                 ObjectNode outputJson = objectMapper.createObjectNode();
                 outputJson.put("message_count", messageCount);
