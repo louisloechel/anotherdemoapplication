@@ -81,13 +81,14 @@ public class KafkaFlinkJob {
                 // Respiration rate per minute
                 int newsResp = resp;
                 // Systolic blood pressure
-                int newsBps = -1; //bps;
+                int newsBps = bps;
                 // Pulse rate per minute
-                int newsPulse = -1; //pulse;
+                int newsPulse = pulse;
                 // Temperature in degrees Celsius
-                double newsTemp = -1; //temp;
+                double newsTemp = temp;
 
                 // Convert measurements into NEWS2 scores
+                // 1. Respiration rate per minute
                 int newsRespScore;
                 if (newsResp >= 0 && newsResp <= 8) {
                     newsRespScore = 3;
@@ -102,6 +103,56 @@ public class KafkaFlinkJob {
                 } else {
                     newsRespScore = -1;
                 }
+
+                // 2. Systolic blood pressure
+                int newsBpsScore;
+                if (newsBps >= 0 && newsBps <= 90) {
+                    newsBpsScore = 3;
+                } else if (newsBps >= 91 && newsBps <= 100) {
+                    newsBpsScore = 2;
+                } else if (newsBps >= 101 && newsBps <= 110) {
+                    newsBpsScore = 1;
+                } else if (newsBps >= 111 && newsBps <= 219) {
+                    newsBpsScore = 0;
+                } else if (newsBps >= 220) {
+                    newsBpsScore = 3;
+                } else {
+                    newsBpsScore = -1;
+                }
+
+                // 3. Pulse rate per minute
+                int newsPulseScore;
+                if (newsPulse >= 0 && newsPulse <= 40) {
+                    newsPulseScore = 3;
+                } else if (newsPulse >= 41 && newsPulse <= 50) {
+                    newsPulseScore = 1;
+                } else if (newsPulse >= 51 && newsPulse <= 90) {
+                    newsPulseScore = 0;
+                } else if (newsPulse >= 91 && newsPulse <= 110) {
+                    newsPulseScore = 1;
+                } else if (newsPulse >= 111 && newsPulse <= 130) {
+                    newsPulseScore = 2;
+                } else if (newsPulse >= 131) {
+                    newsPulseScore = 3;
+                } else {
+                    newsPulseScore = -1;
+                }
+
+                // 4. Temperature in degrees Celsius
+                int newsTempScore;
+                if (newsTemp >= 0 && newsTemp <= 35.0) {
+                    newsTempScore = 3;
+                } else if (newsTemp > 35.0 && newsTemp <= 36.0) {
+                    newsTempScore = 0;
+                } else if (newsTemp > 36.0 && newsTemp <= 38.0) {
+                    newsTempScore = 1;
+                } else if (newsTemp > 38.0 && newsTemp <= 39.0) {
+                    newsTempScore = 2;
+                } else if (newsTemp > 39.0) {
+                    newsTempScore = 3;
+                } else {
+                    newsTempScore = -1;
+                }
                 
 
                 //--------------------------------------------------------------------------------|
@@ -109,10 +160,10 @@ public class KafkaFlinkJob {
 
                 // Create a new JSON object with the same format
                 ObjectNode outputJson = objectMapper.createObjectNode();
-                outputJson.put("resp", newsResp);
-                outputJson.put("bps", newsBps);
-                outputJson.put("pulse", newsPulse);
-                outputJson.put("temp", newsTemp);
+                outputJson.put("resp", newsRespScore);
+                outputJson.put("bps", newsBpsScore);
+                outputJson.put("pulse", newsPulseScore);
+                outputJson.put("temp", newsTempScore);
 
                 // Collect the JSON string
                 out.collect(outputJson.toString());
