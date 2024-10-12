@@ -38,25 +38,81 @@ public class KafkaFlinkJob {
             @Override
             public void flatMap(String value, Collector<String> out) throws Exception {
                 // Parse the JSON message
+                // The JSON message is expected to have the following format:
+                // {
+                //     "eformdataid": "57906",
+                //     "date": "07-Jan",
+                //     "time": "11:18",
+                //     "resp": "12", <<<<<<<  
+                //     "oxcode": "",
+                //     "oxpercent": "",
+                //     "oxflow": "",
+                //     "oxcodename": "",
+                //     "oxsat": "95",
+                //     "oxsatscale": "1",
+                //     "bps": "175", <<<<<<<
+                //     "bpd": "93",
+                //     "pulse": "100", <<<<<<<
+                //     "acvpu": "Alert",
+                //     "temp": "37.1", <<<<<<<
+                //     "newstotal": "2",
+                //     "newsrepeat": "4 hours",
+                //     "userinitials": "RB",
+                //     "username": "Rhidian Bramley",
+                //     "userid": "532",
+                //     "escalation": "No"
+                //   }
                 JsonNode jsonNode = objectMapper.readTree(value);
-                int messageCount = jsonNode.get("message_count").asInt();
+                int resp = jsonNode.get("resp").asInt();
+                int bps = jsonNode.get("bps").asInt();
+                int pulse = jsonNode.get("pulse").asInt();
+                double temp = jsonNode.get("temp").asDouble();
 
                 // Log the received message
-                LOG.info("Received message: {}", messageCount);
+                LOG.info("Received message: {}", jsonNode);
 
                 //--------------------------------------------------------------------------------|
                 //--------------------------------------------------------------------------------|
                 // This is where the privacy enhancing transformation would be implemented
+                // The transformation would be applied to the variables resp, bps, pulse, and temp
+                // The transformed values would be stored in the same variables as their NEWS2 counterparts
+                // The transformed values would be used to calculate the NEWS2 score
+                
+                // Respiration rate per minute
+                int newsResp = resp;
+                // Systolic blood pressure
+                int newsBps = -1; //bps;
+                // Pulse rate per minute
+                int newsPulse = -1; //pulse;
+                // Temperature in degrees Celsius
+                double newsTemp = -1; //temp;
 
-                // floor the message count to the nearest 10
-                messageCount = messageCount - (messageCount % 100);
+                // Convert measurements into NEWS2 scores
+                int newsRespScore;
+                if (newsResp >= 0 && newsResp <= 8) {
+                    newsRespScore = 3;
+                } else if (newsResp >= 9 && newsResp <= 11) {
+                    newsRespScore = 1;
+                } else if (newsResp >= 12 && newsResp <= 20) {
+                    newsRespScore = 0;
+                } else if (newsResp >= 21 && newsResp <= 24) {
+                    newsRespScore = 3;
+                } else if (newsResp >= 25) {
+                    newsRespScore = 3;
+                } else {
+                    newsRespScore = -1;
+                }
+                
 
                 //--------------------------------------------------------------------------------|
                 //--------------------------------------------------------------------------------|
 
                 // Create a new JSON object with the same format
                 ObjectNode outputJson = objectMapper.createObjectNode();
-                outputJson.put("message_count", messageCount);
+                outputJson.put("resp", newsResp);
+                outputJson.put("bps", newsBps);
+                outputJson.put("pulse", newsPulse);
+                outputJson.put("temp", newsTemp);
 
                 // Collect the JSON string
                 out.collect(outputJson.toString());

@@ -49,11 +49,9 @@ def consume_messages():
                     raise KafkaException(msg.error())
             else:
                 # Properly received a message
-                # print(f"Received message: {msg.value().decode('utf-8')} from topic: {msg.topic()} partition: {msg.partition()}")
                 message = json.loads(msg.value().decode('utf-8'))
-                message_count = message["message_count"]
 
-                print(f"Received message: message_count={message_count} from topic: {msg.topic()} partition: {msg.partition()}")
+                print(f"Received message: message={message} from topic: {msg.topic()}")
                 
                 MESSAGE_COUNTER.inc()  # Increment the Prometheus counter for each message consumed
     except KeyboardInterrupt:
