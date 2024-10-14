@@ -18,16 +18,22 @@ This is a demo application for a Master's thesis project.
 - [x] graphana dashboard
 - [ ] HDFS long term storage
 
-### How to run:
+### Deployment:
 
-Build & run the docker images:
+#### Prerequisites:
+- Docker
+- Docker-compose
+
+#### Build & run the docker images:
 ```bash
 docker-compose up --build
 ```
 
-Grafana Dashboard:
-- Grafana: http://localhost:3000
-- Query: ```kafka_consumer_messages_total```
+#### Prometheus:
+![](else/news2_dashboard.jpeg)
 
-Prometheus:
 - Prometheus: [Dashboard](http://localhost:9090/graph?g0.expr=kafka_consumer_messages_total&g0.tab=0&g0.display_mode=lines&g0.show_exemplars=0&g0.range_input=1h)
+- dashboard json reference located at ```prometheus/NEWS2...```
+
+#### Grafana:
+- Grafana available at http://localhost:3000
