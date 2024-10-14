@@ -1,10 +1,8 @@
 from confluent_kafka import Consumer, KafkaError, KafkaException # type: ignore
-from prometheus_client import start_http_server, Counter
+from prometheus_client import start_http_server, Counter, Gauge # type: ignore
 import json
 import os
 import time
-
-print(f"PYTHONUNBUFFERED={os.getenv('PYTHONUNBUFFERED')}", flush=True)
 
 # Prometheus counter for tracking the number of messages
 MESSAGE_COUNTER = Counter('kafka_consumer_messages_total', 'Total number of messages consumed')
@@ -24,11 +22,16 @@ consumer = Consumer(conf)
 topic = 'processed-topic'
 consumer.subscribe([topic])
 
+# Prometheus metrics
+gauges = {}
+
 # Wait for the topic to be available
 sleeptime = 10
 print(f"Waiting {sleeptime}s for Kafka topic {topic} to be available...", flush=True)
 time.sleep(sleeptime)
 print("Starting consumer...", flush=True)
+
+
 
 def consume_messages():
     print(f"Subscribing to Kafka topic: {topic}", flush=True)
@@ -49,12 +52,17 @@ def consume_messages():
                     raise KafkaException(msg.error())
             else:
                 # Properly received a message
-                # print(f"Received message: {msg.value().decode('utf-8')} from topic: {msg.topic()} partition: {msg.partition()}")
                 message = json.loads(msg.value().decode('utf-8'))
-                message_count = message["message_count"]
 
-                print(f"Received message: message_count={message_count} from topic: {msg.topic()} partition: {msg.partition()}")
-                
+                print(f"Received message: message={message} from topic: {msg.topic()}")
+                # Export specific values from the message to Prometheus metrics
+                # resp, bps, pulse, temp
+                for key, value in message.items():
+                    print(f"PROMETHEUS: key={key}, value={value}")
+                    if key not in gauges:
+                        gauges[key] = Gauge(f'kafka_consumer_{key}', f'Kafka consumer {key} value')
+                    gauges[key].set(value)
+
                 MESSAGE_COUNTER.inc()  # Increment the Prometheus counter for each message consumed
     except KeyboardInterrupt:
         print("Consumer interrupted")
