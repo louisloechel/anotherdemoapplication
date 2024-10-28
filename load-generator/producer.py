@@ -38,6 +38,14 @@ def main():
             )
             topic2 = 'processed-topic'
             producer2.send(topic2, value=b'{}')
+
+            producer3 = KafkaProducer(
+                bootstrap_servers='kafka:29092',
+                max_block_ms=10000,  # Fail if unable to send after 10 seconds
+                retries=0  # Do not retry indefinitely
+            )
+            topic3 = 'prink-topic'
+            producer3.send(topic3, value=b'{}')
             
             while True:
                 print(f'{time.strftime("%Y-%m-%d %H:%M:%S")} Sending messages...', flush=True)
