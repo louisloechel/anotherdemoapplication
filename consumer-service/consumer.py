@@ -20,6 +20,7 @@ consumer = Consumer(conf)
 # Subscribe to a Kafka topic
 # topic = 'raw-topic'  
 topic = 'processed-topic'
+# topic = 'prink-topic'
 consumer.subscribe([topic])
 
 # Prometheus metrics
@@ -41,6 +42,7 @@ def consume_messages():
 
             if msg is None:
                 # No new message available, continue polling
+                print("No new message available, continuing polling...")
                 continue
 
             if msg.error():

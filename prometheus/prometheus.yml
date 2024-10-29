@@ -4,4 +4,17 @@ global:
 scrape_configs:
   - job_name: "kafka_consumer"
     static_configs:
-      - targets: ["kafka-consumer:8000"] # This is the consumer service that will expose metrics
+      - targets: ["kafka-consumer:8000"]
+  - job_name: "prink_job"
+    static_configs:
+      - targets: ["prink-job:8002"]
+  - job_name: "flink_job"
+    static_configs:
+      - targets: ["flink-job:8003"]
+
+  - job_name: "flink_jobmanager_metrics"
+    static_configs:
+      - targets: ["flink-jobmanager:9249"]
+  - job_name: "flink_taskmanager_metrics"
+    static_configs:
+      - targets: ["flink-taskmanager:9249"]
