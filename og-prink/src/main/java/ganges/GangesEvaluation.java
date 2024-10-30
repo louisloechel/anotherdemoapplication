@@ -14,8 +14,14 @@ import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.util.StringUtils;
+import org.apache.flink.connector.kafka.sink.KafkaSink;
+import org.apache.flink.connector.kafka.sink.KafkaRecordSerializationSchema;
+import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer;
+import org.apache.flink.api.common.serialization.SimpleStringSchema;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import prink.CastleFunction;
 import prink.datatypes.CastleRule;
 import prink.generalizations.*;
@@ -27,6 +33,11 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.Properties;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 public class GangesEvaluation {
 
@@ -57,14 +68,9 @@ public class GangesEvaluation {
         zeta = parameters.getInt("zeta", zeta);
         mu = parameters.getInt("mu", mu);
 
-        String sutHost = parameters.get("sut_host", "localhost");
-        int sutPortWrite = parameters.getInt("sut_port_write", 50051);
-        int sutPortRead = parameters.getInt("sut_port_read", 50052);
-
         // Set up streaming execution environment
-        StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
+        final StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         env.setParallelism(1);
-
 
         MapStateDescriptor<Integer, CastleRule> ruleStateDescriptor =
                 new MapStateDescriptor<>(
@@ -80,48 +86,47 @@ public class GangesEvaluation {
 
         String evalDescription = String.format("k%d_delta%d_l%d_beta%d_zeta%d_mu%d", k, delta, l, beta, zeta, mu);
 
-        SingleOutputStreamOperator<Tuple18<Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object>> source = env.socketTextStream(sutHost, sutPortWrite)
-                .map(new StringToTuple<>());
+        
+        // Set up Kafka consumer properties
+        Properties properties = new Properties();
+        properties.setProperty("bootstrap.servers", "kafka:29092");
+        properties.setProperty("group.id", "flink-group");
+        
+        // Create a Kafka consumer
+        FlinkKafkaConsumer<String> consumer = new FlinkKafkaConsumer<>("processed-topic", new SimpleStringSchema(), properties);
+        
         // Create a stream of custom elements and apply transformations
-        DataStream<Tuple19<Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object>> dataStream = source
-                .returns(TypeInformation.of(new TypeHint<Tuple18<Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object>>() {
-                }))
-                .keyBy(tuple -> tuple.getField(0))
-                .connect(ruleBroadcastStream)
-                .process(new CastleFunction<Long, Tuple18<Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object>, Tuple19<Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object>>(0, k, l, delta, beta, zeta, mu, true, 0, rules))
-                .returns(TypeInformation.of(new TypeHint<Tuple19<Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object>>() {
-                }))
-                .name(evalDescription);
+        DataStream<Tuple4<Object, Object, Object, Object>> source = env.addSource(consumer).map(new JsonToTuple<>());
 
-        dataStream.writeToSocket(sutHost, sutPortRead, new TupleToString<>()).setParallelism(1);
+        DataStream<Tuple5<Object, Object, Object, Object, Object>> dataStream = source
+        .keyBy(tuple -> tuple.getField(0))
+        .connect(ruleBroadcastStream)
+        .process(new CastleFunction<Long, Tuple4<Object, Object, Object, Object>, Tuple5<Object, Object, Object, Object, Object>>(
+            0, k, l, delta, beta, zeta, mu, true, 0, rules))
+        .name(evalDescription);
+
+        // Create a Kafka sink
+        KafkaSink<String> sink = KafkaSink.<String>builder()
+        .setBootstrapServers("kafka:29092")
+        .setRecordSerializer(KafkaRecordSerializationSchema.builder()
+            .setTopic("prink-topic")
+            .setValueSerializationSchema(new SimpleStringSchema())
+            .build())
+        .build();
+
+        // Add the sink to the data stream
+        dataStream.map(tuple -> tuple.toString()).sinkTo(sink);
 
         // Execute the transformation pipeline
         return env.execute(evalDescription);
     }
 
-
     public enum DatasetFields {
-        BUILDING_ID,
-        TIMESTAMP,
-        METER_READING(new AggregationFloatGeneralizer(Tuple2.of(0f, 100000f)), true),
-        PRIMARY_USE(new NonNumericalGeneralizer(new String[][]{ {"private", "Lodging/Residential"}, {"public", "commercial", "Entertainment", "Technology/Science", "Office", "Parking"}, {"public", "administrative", "Education"}, {"public", "administrative", "Public Services"}, {"public", "administrative", "Utility"} }), false),
-        SQUARE_FEET(new AggregationFloatGeneralizer(Tuple2.of(0f, 50f)), false),
-        YEAR_BUILD(new AggregationFloatGeneralizer(Tuple2.of(1900f, 2020f)), false),
-        FLOOR_COUNT(new AggregationFloatGeneralizer(Tuple2.of(0f, 15f)), false),
-        AIR_TEMPERATURE(new AggregationFloatGeneralizer(Tuple2.of(1f, 1f)), false),
-        CLOUD_COVERAGE(new AggregationFloatGeneralizer(Tuple2.of(0f, 9f)), false),
-        DEW_TEMPERATURE(new AggregationFloatGeneralizer(Tuple2.of(1f, 1f)), false),
-        PERCIP_DEPTH_1_HR,
-        SEA_LEVEL_PRESSURE(new AggregationFloatGeneralizer(Tuple2.of(1f, 1f)), false),
-        WIND_DIRECTION(new AggregationFloatGeneralizer(Tuple2.of(1f, 1f)), false),
-        WIND_SPEED(new AggregationFloatGeneralizer(Tuple2.of(1f, 1f)), false),
-        BUILDING_ID2,
-        UNIXTIMESTAMP(new AggregationFloatGeneralizer(Tuple2.of(1451600000000000000f, 1490000000000000000f)), false),
-        // message id from client
-        M_ID,
-        // ingestion timestamp
-        TS,
-        ;
+        BPS(new AggregationIntegerGeneralizer(Tuple2.of(0, 3)), true),
+        PULSE(new AggregationIntegerGeneralizer(Tuple2.of(0, 3)), true),
+        TEMP(new AggregationIntegerGeneralizer(Tuple2.of(0, 3)), true),
+        RESP(new AggregationIntegerGeneralizer(Tuple2.of(0, 3)), true)
+       ;
 
         private final BaseGeneralizer generalizer;
         private final boolean sensitive;
@@ -203,6 +208,37 @@ public class GangesEvaluation {
                 }
             }
             return newTuple;
+        }
+    }
+
+    // Split incoming JSON object into Tuples
+    public static class JsonToTuple<T extends Tuple> implements MapFunction<String, T> {
+            
+        @Override
+                public T map(String s) throws Exception {
+            ObjectMapper objectMapper = new ObjectMapper();
+            JsonNode jsonNode = objectMapper.readTree(s);
+            T newTuple = (T) Tuple.newInstance(18);
+            newTuple.setField(jsonNode.get("bps").asInt(), 0);
+            newTuple.setField(jsonNode.get("pulse").asInt(), 1);
+            newTuple.setField(jsonNode.get("temp").asInt(), 2);
+            newTuple.setField(jsonNode.get("resp").asInt(), 3);
+            return newTuple;
+        }
+    }
+
+    // Turn Tuple into JSON object
+    public static class TupleToJson<T extends Tuple> implements MapFunction<T, String> {
+        
+        @Override
+               public String map(T t) throws Exception {
+            ObjectMapper objectMapper = new ObjectMapper();
+            ObjectNode outputJson = objectMapper.createObjectNode();
+            outputJson.put("bps", (String) t.getField(0));
+            outputJson.put("pulse", (String) t.getField(1));
+            outputJson.put("temp", (String) t.getField(2));
+            outputJson.put("resp", (String) t.getField(3));
+            return outputJson.toString();
         }
     }
 

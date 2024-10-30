@@ -14,50 +14,12 @@ import org.apache.flink.util.Collector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-// Prometheus stuff
-import io.prometheus.client.Gauge;
-import io.prometheus.client.Counter;
-import io.prometheus.client.exporter.HTTPServer;
-
 import java.util.Properties;
 
 public class KafkaFlinkJob {
     private static final Logger LOG = LoggerFactory.getLogger(KafkaFlinkJob.class);
 
-    // !!! NOTE: The prometheus metrics are currently not working as expected !!!
-    // !!!!!!!!!!!!! The metrics are registered, but don't update. !!!!!!!!!!!!!
-    //
-    // Define Prometheus gauges
-    private static final Gauge newsBpsScoreProcessed = Gauge.build()
-            .name("news_bps_score_procesed")
-            .help("Processed BPS score.")
-            .register();
-
-    private static final Gauge newsPulseScoreProcessed = Gauge.build()
-            .name("news_pulse_score_procesed")
-            .help("Processed Pulse score.")
-            .register();
-
-    private static final Gauge newsRespScoreProcessed = Gauge.build()
-            .name("news_resp_score_procesed")
-            .help("Processed Resp score.")
-            .register();
-
-    private static final Gauge newsTempScoreProcessed = Gauge.build()
-            .name("news_temp_score_procesed")
-            .help("Processed Temp score.")
-            .register();
-
-    // mesage counter
-    private static final Counter messageCounterProcessed = Counter.build()
-            .name("message_counter_processed")
-            .help("Number of messages processed.")
-            .register();
-
     public static void main(String[] args) throws Exception {
-        // Start Prometheus HTTP server
-        HTTPServer server = new HTTPServer(8003);
-
         // Set up the execution environment
         final StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
 
@@ -182,15 +144,6 @@ public class KafkaFlinkJob {
 
                 // Collect the JSON string
                 out.collect(outputJson.toString());
-
-                // Set the Prometheus gauges
-                newsBpsScoreProcessed.set(newsBpsScore);
-                newsPulseScoreProcessed.set(newsPulseScore);
-                newsRespScoreProcessed.set(newsRespScore);
-                newsTempScoreProcessed.set(newsTempScore);
-
-                // Increment the message counter
-                messageCounterProcessed.inc();
 
                 // Log the processed message
                 LOG.info("[flink-job] Processed message: {}", outputJson);
