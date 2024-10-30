@@ -149,6 +149,19 @@ services:
     networks:
       - kafka-network
 
+  og-prink-job:
+    build:
+      context: ./og-prink
+    depends_on:
+      - flink-jobmanager
+      - flink-taskmanager
+    ports:
+      - "8001:8001"  # Prometheus scraping
+    environment:
+      - JOB_MANAGER_RPC_ADDRESS=flink-jobmanager
+    networks:
+      - kafka-network
+
 networks:
   kafka-network:
     driver: bridge
