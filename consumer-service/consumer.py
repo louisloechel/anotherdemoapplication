@@ -19,8 +19,8 @@ consumer = Consumer(conf)
 
 # Subscribe to a Kafka topic
 # topic = 'raw-topic'  
-topic = 'processed-topic'
-# topic = 'prink-topic'
+# topic = 'processed-topic'
+topic = 'prink-topic'
 consumer.subscribe([topic])
 
 # Prometheus metrics
@@ -60,7 +60,7 @@ def consume_messages():
                 # Export specific values from the message to Prometheus metrics
                 # resp, bps, pulse, temp
                 for key, value in message.items():
-                    print(f"PROMETHEUS: key={key}, value={value}")
+                    # print(f"PROMETHEUS: key={key}, value={value}")
                     if key not in gauges:
                         gauges[key] = Gauge(f'kafka_consumer_{key}', f'Kafka consumer {key} value')
                     gauges[key].set(value)

@@ -32,6 +32,7 @@
             <artifactId>jackson-databind</artifactId>
             <version>2.12.3</version>
         </dependency>
+        <!-- Prometheus dependencies -->
         <dependency>
             <groupId>io.prometheus</groupId>
             <artifactId>simpleclient_httpserver</artifactId>

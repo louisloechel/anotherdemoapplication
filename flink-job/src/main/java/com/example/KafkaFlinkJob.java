@@ -8,13 +8,15 @@ import org.apache.flink.api.common.serialization.SimpleStringSchema;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer;
-import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer;
+import org.apache.flink.connector.kafka.sink.KafkaSink;
+import org.apache.flink.connector.kafka.sink.KafkaRecordSerializationSchema;
 import org.apache.flink.util.Collector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 // Prometheus stuff
 import io.prometheus.client.Gauge;
+import io.prometheus.client.Counter;
 import io.prometheus.client.exporter.HTTPServer;
 
 import java.util.Properties;
@@ -22,6 +24,9 @@ import java.util.Properties;
 public class KafkaFlinkJob {
     private static final Logger LOG = LoggerFactory.getLogger(KafkaFlinkJob.class);
 
+    // !!! NOTE: The prometheus metrics are currently not working as expected !!!
+    // !!!!!!!!!!!!! The metrics are registered, but don't update. !!!!!!!!!!!!!
+    //
     // Define Prometheus gauges
     private static final Gauge newsBpsScoreProcessed = Gauge.build()
             .name("news_bps_score_procesed")
@@ -41,6 +46,12 @@ public class KafkaFlinkJob {
     private static final Gauge newsTempScoreProcessed = Gauge.build()
             .name("news_temp_score_procesed")
             .help("Processed Temp score.")
+            .register();
+
+    // mesage counter
+    private static final Counter messageCounterProcessed = Counter.build()
+            .name("message_counter_processed")
+            .help("Number of messages processed.")
             .register();
 
     public static void main(String[] args) throws Exception {
@@ -66,30 +77,6 @@ public class KafkaFlinkJob {
             @Override
             public void flatMap(String value, Collector<String> out) throws Exception {
                 // Parse the JSON message
-                // The JSON message is expected to have the following format:
-                // {
-                //     "eformdataid": "57906",
-                //     "date": "07-Jan",
-                //     "time": "11:18",
-                //     "resp": "12", <<<<<<<  
-                //     "oxcode": "",
-                //     "oxpercent": "",
-                //     "oxflow": "",
-                //     "oxcodename": "",
-                //     "oxsat": "95",
-                //     "oxsatscale": "1",
-                //     "bps": "175", <<<<<<<
-                //     "bpd": "93",
-                //     "pulse": "100", <<<<<<<
-                //     "acvpu": "Alert",
-                //     "temp": "37.1", <<<<<<<
-                //     "newstotal": "2",
-                //     "newsrepeat": "4 hours",
-                //     "userinitials": "RB",
-                //     "username": "Rhidian Bramley",
-                //     "userid": "532",
-                //     "escalation": "No"
-                //   }
                 JsonNode jsonNode = objectMapper.readTree(value);
                 int resp = jsonNode.get("resp").asInt();
                 int bps = jsonNode.get("bps").asInt();
@@ -97,7 +84,7 @@ public class KafkaFlinkJob {
                 double temp = jsonNode.get("temp").asDouble();
 
                 // Log the received message
-                LOG.info("Received message: {}", jsonNode);
+                LOG.info("[flink-job] Received message: {}", jsonNode);
 
                 //--------------------------------------------------------------------------------|
                 //--------------------------------------------------------------------------------|
@@ -202,14 +189,23 @@ public class KafkaFlinkJob {
                 newsRespScoreProcessed.set(newsRespScore);
                 newsTempScoreProcessed.set(newsTempScore);
 
+                // Increment the message counter
+                messageCounterProcessed.inc();
+
                 // Log the processed message
-                LOG.info("Processed message: {}", outputJson);
+                LOG.info("[flink-job] Processed message: {}", outputJson);
             }
         });
 
-        // Create a Kafka producer
-        FlinkKafkaProducer<String> producer = new FlinkKafkaProducer<>("processed-topic", new SimpleStringSchema(), properties);
-        processedStream.addSink(producer);
+        KafkaSink<String> sink = KafkaSink.<String>builder()
+                .setBootstrapServers("kafka:29092")
+                .setRecordSerializer(KafkaRecordSerializationSchema.builder()
+                        .setTopic("processed-topic")
+                        .setValueSerializationSchema(new SimpleStringSchema())
+                        .build()
+                )
+                .build();
+        processedStream.sinkTo(sink);
 
         // Execute the Flink job
         env.execute("Kafka Flink Job");

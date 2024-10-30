@@ -70,7 +70,7 @@ public class KafkaFlinkJob {
                 double temp = jsonNode.hasNonNull("temp") ? jsonNode.get("temp").asDouble() : -1.0; // Default value -1.0 if not present
 
                 // Log the received message
-                LOG.info("Received message: {}", jsonNode);
+                LOG.info("[prink-job] Received message: {}", jsonNode);
 
                 //--------------------------------------------------------------------------------|
                 //--------------------------------------------------------------------------------|
@@ -103,6 +103,8 @@ public class KafkaFlinkJob {
 
                 // Collect the JSON string
                 out.collect(outputJson.toString());
+
+                LOG.info("[prink-job] Processed message: {}", outputJson);
             }
         });
 

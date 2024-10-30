@@ -86,14 +86,14 @@ services:
         metrics.reporter.prom.port: 9249
     volumes:
       - ./flink-conf.yaml:/opt/flink/conf/flink-conf.yaml
-    # deploy:
-    #   resources:
-    #     limits:
-    #       cpus: '2'
-    #       memory: 4G
-    #     reservations:
-    #       cpus: '1'
-    #       memory: 2G
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 4G
+        reservations:
+          cpus: '1'
+          memory: 2G
     networks:
       - kafka-network
 
@@ -103,7 +103,7 @@ services:
     depends_on:
       - flink-jobmanager
     ports:
-      - "9249:9249"  # Expose the metrics port for Prometheus scraping
+      - "9249"  # dynamic port allocation for metrics
     environment:
       - |
         FLINK_PROPERTIES=
@@ -112,14 +112,15 @@ services:
         metrics.reporter.prom.port: 9249
     volumes:
       - ./flink-conf.yaml:/opt/flink/conf/flink-conf.yaml
-    # deploy:
-    #   resources:
-    #     limits:
-    #       cpus: '4'
-    #       memory: 8G
-    #     reservations:
-    #       cpus: '2'
-    #       memory: 4G
+    deploy:
+      resources:
+        limits:
+          cpus: '4'
+          memory: 8G
+        reservations:
+          cpus: '2'
+          memory: 4G
+      replicas: 2
     networks:
       - kafka-network
 
