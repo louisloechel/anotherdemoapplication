@@ -75,6 +75,7 @@ services:
     image: flink:latest
     command: jobmanager
     ports:
+      - "8081:8081"
       - "9250:9249"  # Prometheus scraping
     environment:
       - |
@@ -136,31 +137,31 @@ services:
     networks:
       - kafka-network
 
-  prink-job:
-    build:
-      context: ./prink-job
-    depends_on:
-      - flink-jobmanager
-      - flink-taskmanager
-    ports:
-      - "8002:8002"  # Prometheus scraping
-    environment:
-      - JOB_MANAGER_RPC_ADDRESS=flink-jobmanager
-    networks:
-      - kafka-network
+  # prink-job:
+  #   build:
+  #     context: ./prink-job
+  #   depends_on:
+  #     - flink-jobmanager
+  #     - flink-taskmanager
+  #   ports:
+  #     - "8002:8002"  # Prometheus scraping
+  #   environment:
+  #     - JOB_MANAGER_RPC_ADDRESS=flink-jobmanager
+  #   networks:
+  #     - kafka-network
 
-  og-prink-job:
-    build:
-      context: ./og-prink
-    depends_on:
-      - flink-jobmanager
-      - flink-taskmanager
-    ports:
-      - "8001:8001"  # Prometheus scraping
-    environment:
-      - JOB_MANAGER_RPC_ADDRESS=flink-jobmanager
-    networks:
-      - kafka-network
+  # og-prink-job:
+  #   build:
+  #     context: ./og-prink
+  #   depends_on:
+  #     - flink-jobmanager
+  #     - flink-taskmanager
+  #   ports:
+  #     - "8001:8001"  # Prometheus scraping
+  #   environment:
+  #     - JOB_MANAGER_RPC_ADDRESS=flink-jobmanager
+  #   networks:
+  #     - kafka-network
 
 networks:
   kafka-network:

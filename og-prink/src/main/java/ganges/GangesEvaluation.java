@@ -7,17 +7,19 @@ import org.apache.flink.api.common.state.MapStateDescriptor;
 import org.apache.flink.api.common.typeinfo.BasicTypeInfo;
 import org.apache.flink.api.common.typeinfo.TypeHint;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
+import org.apache.flink.api.common.serialization.SimpleStringSchema;
+import org.apache.flink.api.java.typeutils.TypeExtractor;
+import org.apache.flink.api.java.typeutils.ResultTypeQueryable;
 import org.apache.flink.api.java.tuple.*;
 import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.streaming.api.datastream.BroadcastStream;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-import org.apache.flink.util.StringUtils;
+import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer;
 import org.apache.flink.connector.kafka.sink.KafkaSink;
 import org.apache.flink.connector.kafka.sink.KafkaRecordSerializationSchema;
-import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer;
-import org.apache.flink.api.common.serialization.SimpleStringSchema;
+import org.apache.flink.util.StringUtils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,9 +43,9 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 public class GangesEvaluation {
 
-    int k = 5;
-    int l = 2;
-    int delta = 200;
+    int k = 1;
+    int l = 0;
+    int delta = 5;
     int beta = 50;
     int zeta = 10;
     int mu = 10;
@@ -89,42 +91,45 @@ public class GangesEvaluation {
         
         // Set up Kafka consumer properties
         Properties properties = new Properties();
-        properties.setProperty("bootstrap.servers", "kafka:29092");
+        properties.setProperty("bootstrap.servers", "127.0.0.1:9092");
         properties.setProperty("group.id", "flink-group");
         
         // Create a Kafka consumer
-        FlinkKafkaConsumer<String> consumer = new FlinkKafkaConsumer<>("processed-topic", new SimpleStringSchema(), properties);
+        FlinkKafkaConsumer<String> consumer = new FlinkKafkaConsumer<>("raw-topic", new SimpleStringSchema(), properties);
         
         // Create a stream of custom elements and apply transformations
-        DataStream<Tuple4<Object, Object, Object, Object>> source = env.addSource(consumer).map(new JsonToTuple<>());
+        SingleOutputStreamOperator<Tuple4<Object, Object, Object, Object>> source = env.addSource(consumer).map(new JsonToTuple<>());
 
         DataStream<Tuple5<Object, Object, Object, Object, Object>> dataStream = source
-        .keyBy(tuple -> tuple.getField(0))
-        .connect(ruleBroadcastStream)
-        .process(new CastleFunction<Long, Tuple4<Object, Object, Object, Object>, Tuple5<Object, Object, Object, Object, Object>>(
-            0, k, l, delta, beta, zeta, mu, true, 0, rules))
-        .name(evalDescription);
+            .returns(TypeInformation.of(new TypeHint<Tuple4<Object, Object, Object, Object>>() {
+                }))
+            .keyBy(tuple -> tuple.getField(0))
+            .connect(ruleBroadcastStream)
+            .process(new CastleFunction<Long, Tuple4<Object, Object, Object, Object>, Tuple5<Object, Object, Object, Object, Object>>(
+                0, k, l, delta, beta, zeta, mu, true, 0, rules))
+            .returns(TypeInformation.of(new TypeHint<Tuple5<Object, Object, Object, Object, Object>>() {
+                }))
+            .name(evalDescription);
 
         // Create a Kafka sink
-        KafkaSink<String> sink = KafkaSink.<String>builder()
-        .setBootstrapServers("kafka:29092")
+        KafkaSink<Tuple5<Object, Object, Object, Object, Object>> sink = KafkaSink.<Tuple5<Object, Object, Object, Object, Object>>builder()
+        .setBootstrapServers("127.0.0.1:9092")
         .setRecordSerializer(KafkaRecordSerializationSchema.builder()
             .setTopic("prink-topic")
-            .setValueSerializationSchema(new SimpleStringSchema())
+            .setValueSerializationSchema(new TupleToJson<Tuple5<Object, Object, Object, Object, Object>>())
             .build())
         .build();
 
         // Add the sink to the data stream
-        dataStream.map(tuple -> tuple.toString()).sinkTo(sink);
-
+        dataStream.sinkTo(sink);
         // Execute the transformation pipeline
         return env.execute(evalDescription);
     }
 
     public enum DatasetFields {
+        UID(new AggregationIntegerGeneralizer(Tuple2.of(0, 3)), true),
         BPS(new AggregationIntegerGeneralizer(Tuple2.of(0, 3)), true),
         PULSE(new AggregationIntegerGeneralizer(Tuple2.of(0, 3)), true),
-        TEMP(new AggregationIntegerGeneralizer(Tuple2.of(0, 3)), true),
         RESP(new AggregationIntegerGeneralizer(Tuple2.of(0, 3)), true)
        ;
 
@@ -167,8 +172,8 @@ public class GangesEvaluation {
                 return input;
             }
         }
-    }
 
+    }
     public static class TupleToString<T extends Tuple> implements SerializationSchema<T> {
 
         @Override
@@ -212,33 +217,39 @@ public class GangesEvaluation {
     }
 
     // Split incoming JSON object into Tuples
-    public static class JsonToTuple<T extends Tuple> implements MapFunction<String, T> {
-            
+    public static class JsonToTuple<T extends Tuple> implements MapFunction<String, T>{
         @Override
-                public T map(String s) throws Exception {
+        public T map(String s) throws Exception {
             ObjectMapper objectMapper = new ObjectMapper();
             JsonNode jsonNode = objectMapper.readTree(s);
-            T newTuple = (T) Tuple.newInstance(18);
-            newTuple.setField(jsonNode.get("bps").asInt(), 0);
-            newTuple.setField(jsonNode.get("pulse").asInt(), 1);
-            newTuple.setField(jsonNode.get("temp").asInt(), 2);
-            newTuple.setField(jsonNode.get("resp").asInt(), 3);
+            T newTuple = (T) Tuple.newInstance(4);
+            try {
+                newTuple.setField(jsonNode.get("userid").asInt(), 0);
+                newTuple.setField(jsonNode.get("bps").asInt(), 1);
+                newTuple.setField(jsonNode.get("pulse").asInt(), 2);
+                newTuple.setField(jsonNode.get("resp").asInt(), 3);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
             return newTuple;
         }
     }
 
     // Turn Tuple into JSON object
-    public static class TupleToJson<T extends Tuple> implements MapFunction<T, String> {
-        
+    public static class TupleToJson<T extends Tuple> implements SerializationSchema<T> {
+
         @Override
-               public String map(T t) throws Exception {
+        public byte[] serialize(T t) {
             ObjectMapper objectMapper = new ObjectMapper();
             ObjectNode outputJson = objectMapper.createObjectNode();
-            outputJson.put("bps", (String) t.getField(0));
-            outputJson.put("pulse", (String) t.getField(1));
-            outputJson.put("temp", (String) t.getField(2));
-            outputJson.put("resp", (String) t.getField(3));
-            return outputJson.toString();
+            outputJson.put("userid", t.getField(0).toString());
+            outputJson.put("bps", t.getField(1).toString());
+            outputJson.put("pulse", t.getField(2).toString());
+            outputJson.put("resp", t.getField(3).toString());
+            outputJson.put("infoloss", t.getField(4).toString());
+
+            LOG.debug(outputJson.toString());
+            return outputJson.toString().getBytes(StandardCharsets.UTF_8);
         }
     }
 

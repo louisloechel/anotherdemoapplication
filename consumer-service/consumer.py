@@ -54,7 +54,9 @@ def consume_messages():
                     raise KafkaException(msg.error())
             else:
                 # Properly received a message
-                message = json.loads(msg.value().decode('utf-8'))
+                msg_content = msg.value()
+                print(f"Received message: {msg_content}")
+                message = json.loads(msg_content.decode('utf-8'))
 
                 print(f"Received message: message={message} from topic: {msg.topic()}")
                 # Export specific values from the message to Prometheus metrics
@@ -63,6 +65,11 @@ def consume_messages():
                     # print(f"PROMETHEUS: key={key}, value={value}")
                     if key not in gauges:
                         gauges[key] = Gauge(f'kafka_consumer_{key}', f'Kafka consumer {key} value')
+                    if value[0] == '(':
+                        # value is tuple, (123,456), rm (), split by , and take first element
+                        value = value[1:-1]
+                        value = value.split(',')[0]
+                    print(f"value={value}")
                     gauges[key].set(value)
 
                 MESSAGE_COUNTER.inc()  # Increment the Prometheus counter for each message consumed
