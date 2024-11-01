@@ -14,5 +14,8 @@ COPY --from=build /app/target /opt/flink/usrlib/artifacts/1/
 RUN export JAR_FILE=$(ls /opt/flink/usrlib/artifacts/1/prink-*.jar) && \
     echo "JAR_FILE=$JAR_FILE" > /opt/flink/usrlib/artifacts/1/jar_env.sh
 
+# Set the job manager address
+ENV JOB_MANAGER_RPC_ADDRESS=flink-jobmanager
+
 # Source the environment variable and run the Flink job
 ENTRYPOINT ["/bin/bash", "-c", "source /opt/flink/usrlib/artifacts/1/jar_env.sh && flink run $JAR_FILE --job-classname ganges.GangesEvaluation"]

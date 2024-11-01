@@ -40,6 +40,7 @@ public class KafkaFlinkJob {
             public void flatMap(String value, Collector<String> out) throws Exception {
                 // Parse the JSON message
                 JsonNode jsonNode = objectMapper.readTree(value);
+                int userid = jsonNode.get("userid").asInt();
                 int resp = jsonNode.get("resp").asInt();
                 int bps = jsonNode.get("bps").asInt();
                 int pulse = jsonNode.get("pulse").asInt();
@@ -137,6 +138,7 @@ public class KafkaFlinkJob {
 
                 // Create a new JSON object with the same format
                 ObjectNode outputJson = objectMapper.createObjectNode();
+                outputJson.put("userid", userid);
                 outputJson.put("resp", newsRespScore);
                 outputJson.put("bps", newsBpsScore);
                 outputJson.put("pulse", newsPulseScore);

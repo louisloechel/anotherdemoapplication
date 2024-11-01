@@ -91,32 +91,32 @@ public class GangesEvaluation {
         
         // Set up Kafka consumer properties
         Properties properties = new Properties();
-        properties.setProperty("bootstrap.servers", "127.0.0.1:9092");
+        properties.setProperty("bootstrap.servers", "127.0.0.1:9092");  // "127.0.0.1:9092" "kafka:29092"
         properties.setProperty("group.id", "flink-group");
         
         // Create a Kafka consumer
-        FlinkKafkaConsumer<String> consumer = new FlinkKafkaConsumer<>("raw-topic", new SimpleStringSchema(), properties);
+        FlinkKafkaConsumer<String> consumer = new FlinkKafkaConsumer<>("processed-topic", new SimpleStringSchema(), properties);
         
         // Create a stream of custom elements and apply transformations
-        SingleOutputStreamOperator<Tuple4<Object, Object, Object, Object>> source = env.addSource(consumer).map(new JsonToTuple<>());
+        SingleOutputStreamOperator<Tuple5<Object, Object, Object, Object, Object>> source = env.addSource(consumer).map(new JsonToTuple<>());
 
-        DataStream<Tuple5<Object, Object, Object, Object, Object>> dataStream = source
-            .returns(TypeInformation.of(new TypeHint<Tuple4<Object, Object, Object, Object>>() {
+        DataStream<Tuple6<Object, Object, Object, Object, Object, Object>> dataStream = source
+            .returns(TypeInformation.of(new TypeHint<Tuple5<Object, Object, Object, Object, Object>>() {
                 }))
             .keyBy(tuple -> tuple.getField(0))
             .connect(ruleBroadcastStream)
-            .process(new CastleFunction<Long, Tuple4<Object, Object, Object, Object>, Tuple5<Object, Object, Object, Object, Object>>(
+            .process(new CastleFunction<Long, Tuple5<Object, Object, Object, Object, Object>, Tuple6<Object, Object, Object, Object, Object, Object>>(
                 0, k, l, delta, beta, zeta, mu, true, 0, rules))
-            .returns(TypeInformation.of(new TypeHint<Tuple5<Object, Object, Object, Object, Object>>() {
+            .returns(TypeInformation.of(new TypeHint<Tuple6<Object, Object, Object, Object, Object, Object>>() {
                 }))
             .name(evalDescription);
 
         // Create a Kafka sink
-        KafkaSink<Tuple5<Object, Object, Object, Object, Object>> sink = KafkaSink.<Tuple5<Object, Object, Object, Object, Object>>builder()
-        .setBootstrapServers("127.0.0.1:9092")
+        KafkaSink<Tuple6<Object, Object, Object, Object, Object, Object>> sink = KafkaSink.<Tuple6<Object, Object, Object, Object, Object, Object>>builder()
+        .setBootstrapServers("127.0.0.1:9092") // "127.0.0.1:9092" "kafka:29092"
         .setRecordSerializer(KafkaRecordSerializationSchema.builder()
             .setTopic("prink-topic")
-            .setValueSerializationSchema(new TupleToJson<Tuple5<Object, Object, Object, Object, Object>>())
+            .setValueSerializationSchema(new TupleToJson<Tuple6<Object, Object, Object, Object, Object, Object>>())
             .build())
         .build();
 
@@ -128,9 +128,10 @@ public class GangesEvaluation {
 
     public enum DatasetFields {
         UID(new AggregationIntegerGeneralizer(Tuple2.of(0, 3)), true),
+        RESP(new AggregationIntegerGeneralizer(Tuple2.of(0, 3)), true),
         BPS(new AggregationIntegerGeneralizer(Tuple2.of(0, 3)), true),
         PULSE(new AggregationIntegerGeneralizer(Tuple2.of(0, 3)), true),
-        RESP(new AggregationIntegerGeneralizer(Tuple2.of(0, 3)), true)
+        TEMP(new AggregationIntegerGeneralizer(Tuple2.of(0, 3)), true)
        ;
 
         private final BaseGeneralizer generalizer;
@@ -222,12 +223,13 @@ public class GangesEvaluation {
         public T map(String s) throws Exception {
             ObjectMapper objectMapper = new ObjectMapper();
             JsonNode jsonNode = objectMapper.readTree(s);
-            T newTuple = (T) Tuple.newInstance(4);
+            T newTuple = (T) Tuple.newInstance(5);
             try {
                 newTuple.setField(jsonNode.get("userid").asInt(), 0);
-                newTuple.setField(jsonNode.get("bps").asInt(), 1);
-                newTuple.setField(jsonNode.get("pulse").asInt(), 2);
-                newTuple.setField(jsonNode.get("resp").asInt(), 3);
+                newTuple.setField(jsonNode.get("resp").asInt(), 1);
+                newTuple.setField(jsonNode.get("bps").asInt(), 2);
+                newTuple.setField(jsonNode.get("pulse").asInt(), 3);
+                newTuple.setField(jsonNode.get("temp").asInt(), 4);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -243,10 +245,11 @@ public class GangesEvaluation {
             ObjectMapper objectMapper = new ObjectMapper();
             ObjectNode outputJson = objectMapper.createObjectNode();
             outputJson.put("userid", t.getField(0).toString());
-            outputJson.put("bps", t.getField(1).toString());
-            outputJson.put("pulse", t.getField(2).toString());
-            outputJson.put("resp", t.getField(3).toString());
-            outputJson.put("infoloss", t.getField(4).toString());
+            outputJson.put("resp", t.getField(1).toString());
+            outputJson.put("bps", t.getField(2).toString());
+            outputJson.put("pulse", t.getField(3).toString());
+            outputJson.put("temp", t.getField(4).toString());
+            outputJson.put("infoloss", t.getField(5).toString());
 
             LOG.debug(outputJson.toString());
             return outputJson.toString().getBytes(StandardCharsets.UTF_8);
