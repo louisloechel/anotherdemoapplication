@@ -43,8 +43,8 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 public class GangesEvaluation {
 
-    int k = 1;
-    int l = 0;
+    int k = 5;
+    int l = 3;
     int delta = 5;
     int beta = 50;
     int zeta = 10;
@@ -127,7 +127,7 @@ public class GangesEvaluation {
     }
 
     public enum DatasetFields {
-        UID(new AggregationIntegerGeneralizer(Tuple2.of(0, 3)), true),
+        UID(new NoneGeneralizer(), false),
         RESP(new AggregationIntegerGeneralizer(Tuple2.of(0, 3)), true),
         BPS(new AggregationIntegerGeneralizer(Tuple2.of(0, 3)), true),
         PULSE(new AggregationIntegerGeneralizer(Tuple2.of(0, 3)), true),
