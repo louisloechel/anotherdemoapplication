@@ -18,24 +18,26 @@ conf = {
 consumer = Consumer(conf)
 
 # Subscribe to a Kafka topic
-# topic = 'raw-topic'  
-# topic = 'processed-topic'
-topic = 'prink-topic'
-consumer.subscribe([topic])
+raw = 'raw-topic'  
+processed = 'processed-topic'
+prink = 'prink-topic'
+
+topics = [processed, prink]
+consumer.subscribe(topics)
 
 # Prometheus metrics
 gauges = {}
 
 # Wait for the topic to be available
 sleeptime = 10
-print(f"Waiting {sleeptime}s for Kafka topic {topic} to be available...", flush=True)
+print(f"Waiting {sleeptime}s for Kafka topics {topics} to be available...", flush=True)
 time.sleep(sleeptime)
 print("Starting consumer...", flush=True)
 
 
 
 def consume_messages():
-    print(f"Subscribing to Kafka topic: {topic}", flush=True)
+    print(f"Subscribing to Kafka topics: {topics}", flush=True)
     try:
         while True:
             msg = consumer.poll(timeout=1.0)  # Poll for a new message from the topic
@@ -61,16 +63,32 @@ def consume_messages():
                 print(f"Received message: message={message} from topic: {msg.topic()}")
                 # Export specific values from the message to Prometheus metrics
                 # resp, bps, pulse, temp
-                for key, value in message.items():
-                    # print(f"PROMETHEUS: key={key}, value={value}")
-                    if key not in gauges:
-                        gauges[key] = Gauge(f'kafka_consumer_{key}', f'Kafka consumer {key} value')
-                    if value[0] == '(':
-                        # value is tuple, (123,456), rm (), split by , and take first element
-                        value = value[1:-1]
-                        value = value.split(',')[0]
-                    print(f"value={value}")
-                    gauges[key].set(value)
+                if 'userid' in message:
+                    userid = message['userid']
+                    for key, value in message.items():
+                        topic = msg.topic()
+                        # Check if the gauge for this key exists with a 'userid' label
+                        if key not in gauges:
+                            # Define the gauge with 'userid' as a label
+                            gauges[key] = Gauge(f'kafka_consumer_{key}', f'Kafka consumer {key} value', ['userid', 'topic'])
+                        
+                        # Process the value, e.g., if it’s a tuple in string format "(123,456)"
+                        if topic == 'prink-topic':
+                            if value[0] == '(':
+                                # value is tuple, (123,456), rm (), split by , and take second element
+                                value = value[1:-1]
+                                value = value.split(',')[1]
+                        
+                        # Convert the value to a numeric type if needed, e.g., int or float
+                        try:
+                            value = float(value)
+                        except ValueError:
+                            continue  # or handle the error as appropriate
+                        
+                        print(f"value={value}")
+                        
+                        # Set the gauge with the specific 'userid' label value
+                        gauges[key].labels(userid=userid, topic=topic).set(value)
 
                 MESSAGE_COUNTER.inc()  # Increment the Prometheus counter for each message consumed
     except KeyboardInterrupt:
@@ -84,7 +102,7 @@ if __name__ == "__main__":
     while True:
         try:
             consumer = Consumer(conf)
-            consumer.subscribe([topic])
+            consumer.subscribe(topics)
             consume_messages()
         except KafkaException as e:
             print(f"KafkaException: {e}", flush=True)
