@@ -1,0 +1,10 @@
+blob.server.port: 6124
+metrics.reporter.prom.port: 9249
+JOB_MANAGER_RPC_ADDRESS: flink-jobmanager=
+taskmanager.memory.managed.size: 512m
+jobmanager.rpc.address: flink-jobmanager
+taskmanager.numberOfTaskSlots: 2
+taskmanager.memory.task.heap.size: 1024m
+metrics.reporter.prom.class: org.apache.flink.metrics.prometheus.PrometheusReporter
+jobmanager.memory.heap.size: 1024m
+query.server.port: 6125

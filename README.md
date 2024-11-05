@@ -1,13 +1,12 @@
 # anotherdemoapplication
 
-![](else/architecture.png)
+![](else/architecture_prink.png)
 
 This is a demo application for a Master's thesis project.
 ### Fundamental ideas:
-- k8s deployment
-- microservices
-- streaming data
-- in transit anonymization
+- dockerized microservices
+- streaming medical data
+- in transit anonymization using CASTLE/prink
 
 ### Roadmap:
 - [x] Set up Repo
@@ -29,11 +28,11 @@ This is a demo application for a Master's thesis project.
 docker-compose up --build
 ```
 
-#### Prometheus:
-![](else/news2_dashboard.jpeg)
+#### Grafana:
+- Grafana available at http://localhost:3000
+![](else/news2_dashboard_comp.png)
 
+#### Prometheus:
 - Prometheus: [Dashboard](http://localhost:9090/graph?g0.expr=kafka_consumer_messages_total&g0.tab=0&g0.display_mode=lines&g0.show_exemplars=0&g0.range_input=1h)
 - dashboard json reference located at ```prometheus/NEWS2...```
 
-#### Grafana:
-- Grafana available at http://localhost:3000
