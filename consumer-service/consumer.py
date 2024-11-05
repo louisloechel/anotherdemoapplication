@@ -75,9 +75,10 @@ def consume_messages():
                         # Process the value, e.g., if it’s a tuple in string format "(123,456)"
                         if topic == 'prink-topic':
                             if value[0] == '(':
-                                # value is tuple, (123,456), rm (), split by , and take second element
+                                # value is tuple, (123,456), rm (), split by , and take first element
                                 value = value[1:-1]
-                                value = value.split(',')[1]
+                                value_avg = (float(value.split(',')[0]) + float(value.split(',')[1])) / 2
+                                value = round(value_avg, 0)
                         
                         # Convert the value to a numeric type if needed, e.g., int or float
                         try:
