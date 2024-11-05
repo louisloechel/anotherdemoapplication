@@ -44,8 +44,8 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 public class GangesEvaluation {
 
     int k = 5;
-    int l = 3;
-    int delta = 5;
+    int l = 1;
+    int delta = 20;
     int beta = 50;
     int zeta = 10;
     int mu = 10;
@@ -91,8 +91,11 @@ public class GangesEvaluation {
         
         // Set up Kafka consumer properties
         Properties properties = new Properties();
-        properties.setProperty("bootstrap.servers", "127.0.0.1:9092");  // "127.0.0.1:9092" "kafka:29092"
+        properties.setProperty("bootstrap.servers", "kafka:29092");  // "127.0.0.1:9092" "kafka:29092"
         properties.setProperty("group.id", "flink-group");
+        properties.setProperty("request.timeout.ms", "60000"); // 60 seconds
+        properties.setProperty("retries", "3");
+        properties.setProperty("retry.backoff.ms", "1000"); // 1 second
         
         // Create a Kafka consumer
         FlinkKafkaConsumer<String> consumer = new FlinkKafkaConsumer<>("processed-topic", new SimpleStringSchema(), properties);
@@ -113,7 +116,7 @@ public class GangesEvaluation {
 
         // Create a Kafka sink
         KafkaSink<Tuple6<Object, Object, Object, Object, Object, Object>> sink = KafkaSink.<Tuple6<Object, Object, Object, Object, Object, Object>>builder()
-        .setBootstrapServers("127.0.0.1:9092") // "127.0.0.1:9092" "kafka:29092"
+        .setBootstrapServers("kafka:29092") // "127.0.0.1:9092" "kafka:29092"
         .setRecordSerializer(KafkaRecordSerializationSchema.builder()
             .setTopic("prink-topic")
             .setValueSerializationSchema(new TupleToJson<Tuple6<Object, Object, Object, Object, Object, Object>>())
