@@ -106,10 +106,18 @@ public class GangesEvaluation {
         DataStream<Tuple6<Object, Object, Object, Object, Object, Object>> dataStream = source
             .returns(TypeInformation.of(new TypeHint<Tuple5<Object, Object, Object, Object, Object>>() {
                 }))
+            .filter(tuple -> {
+                Object key = tuple.getField(0);
+                if (key == null) {
+                System.err.println("Null key encountered: " + tuple);
+                    return false;
+                }
+                return true;
+            })
             .keyBy(tuple -> tuple.getField(0))
             .connect(ruleBroadcastStream)
             .process(new CastleFunction<Long, Tuple5<Object, Object, Object, Object, Object>, Tuple6<Object, Object, Object, Object, Object, Object>>(
-                0, k, l, delta, beta, zeta, mu, true, 0, rules))
+                0, k, l, delta, beta, zeta, mu, true, 2, rules))
             .returns(TypeInformation.of(new TypeHint<Tuple6<Object, Object, Object, Object, Object, Object>>() {
                 }))
             .name(evalDescription);

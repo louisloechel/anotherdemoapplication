@@ -129,6 +129,7 @@ services:
     depends_on:
       - flink-jobmanager
       - flink-taskmanager
+      - kafka-consumer
     ports:
       - "8001:8001"  # Prometheus scraping
     environment:
