@@ -42,7 +42,7 @@ mse = mean_squared_error(y_test, y_pred)
 print(f"Mean Squared Error: {mse}")
 
 # Predict future data points (for example, using the last row of the dataset as input)
-future_data_point = X.iloc[-1].values.reshape(1, -1)  # Last data point
+future_data_point = pd.DataFrame([X.iloc[-1].values], columns=features)  # Add feature names
 future_prediction = model.predict(future_data_point)
 
 print("Future Data Point Prediction:", future_prediction[0])
