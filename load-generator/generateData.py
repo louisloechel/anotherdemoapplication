@@ -52,7 +52,7 @@ def generate_escalation():
 def generate_users(num_users=10):
     users = []
     for _ in range(num_users):
-        user_id = str(uuid.uuid4().int)[:5]  # Unique user ID
+        user_id = "03" + str(uuid.uuid4().int)[:5]  # Unique user ID with length 7 and starting with 03
         username = fake.name()
         user_initials = username[0] + username.split()[-1][0]
         users.append({
@@ -67,6 +67,12 @@ def generate_synthetic_data_for_user(user, num_timestamps=100, interval_minutes=
     start_date = datetime.now() - timedelta(days=1)  # Start date for entries
     user_data = []
 
+    # decide randomly whether user is registered correctly or not [QA use case]
+    # chance of user being registered correctly is 80%
+    if random.random() < 0.2:
+        user["username"] = "Unknown"
+        user["userinitials"] = "XX"
+
     # Generate entries for each timestamp for this user
     for timestamp_index in range(num_timestamps):
         current_time = start_date + timedelta(minutes=interval_minutes * timestamp_index)
@@ -74,7 +80,7 @@ def generate_synthetic_data_for_user(user, num_timestamps=100, interval_minutes=
         entry_time = current_time.strftime("%H:%M")
 
         entry = {
-            "eformdataid": str(uuid.uuid4().int)[:5],  # Unique entry identifier
+            "recordid": str(uuid.uuid4().int)[:5],  # Unique entry identifier
             "date": entry_date,
             "time": entry_time,
             "resp": generate_respiratory_rate(),
@@ -92,7 +98,7 @@ def generate_synthetic_data_for_user(user, num_timestamps=100, interval_minutes=
             "newstotal": generate_newstotal(),
             "newsrepeat": generate_newsrepeat(),
             "userinitials": user["userinitials"],
-            "username": user["username"],
+            "username": user["username"],           # firstname lastname
             "userid": user["userid"],
             "escalation": generate_escalation()
         }
@@ -101,7 +107,7 @@ def generate_synthetic_data_for_user(user, num_timestamps=100, interval_minutes=
     return user_data
 
 # Main function to create output folder and save individual JSON files
-def generate_and_save_user_data(num_users=10, num_timestamps=100, interval_minutes=10):
+def generate_and_save_user_data(num_users, num_timestamps, interval_minutes):
     # Create output folder
     output_folder = "output_json_files"
     os.makedirs(output_folder, exist_ok=True)
