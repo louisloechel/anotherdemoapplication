@@ -91,6 +91,21 @@ def consume_messages():
                         # Set the gauge with the specific 'userid' label value
                         gauges[key].labels(userid=userid, topic=topic).set(value)
 
+                    ## QA use case
+                    # check if the 'correct_bed_registration' gauge exists, if not, create it
+                    if 'correct_bed_registration' not in gauges:
+                        gauges['correct_bed_registration'] = Gauge('kafka_consumer_correct_bed_registration', 'Kafka consumer correct bed registration', ['userid', 'topic'])
+
+                    # Set the bool gauge for correct bed registration to true, if:
+                    # - username is not "Unknown"
+                    # - recordis has length 7 and starts with "03"
+                    username = message['username']
+                    uid = str(message['userid'])
+                    if username != "Unknown" and len(uid) == 7 and uid.startswith("03"):
+                        gauges['correct_bed_registration'].labels(userid=userid, topic=topic).set(1)
+                    else:
+                        gauges['correct_bed_registration'].labels(userid=userid, topic=topic).set(0)
+
                 MESSAGE_COUNTER.inc()  # Increment the Prometheus counter for each message consumed
     except KeyboardInterrupt:
         print("Consumer interrupted")
