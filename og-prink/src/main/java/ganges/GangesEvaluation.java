@@ -101,10 +101,10 @@ public class GangesEvaluation {
         FlinkKafkaConsumer<String> consumer = new FlinkKafkaConsumer<>("processed-topic", new SimpleStringSchema(), properties);
         
         // Create a stream of custom elements and apply transformations
-        SingleOutputStreamOperator<Tuple7<Object, Object, Object, Object, Object, Object, Object>> source = env.addSource(consumer).map(new JsonToTuple<>());
+        SingleOutputStreamOperator<Tuple8<Object, Object, Object, Object, Object, Object, Object, Object>> source = env.addSource(consumer).map(new JsonToTuple<>());
 
-        DataStream<Tuple8<Object, Object, Object, Object, Object, Object, Object, Object>> dataStream = source
-            .returns(TypeInformation.of(new TypeHint<Tuple7<Object, Object, Object, Object, Object, Object, Object>>() {
+        DataStream<Tuple9<Object, Object, Object, Object, Object, Object, Object, Object, Object>> dataStream = source
+            .returns(TypeInformation.of(new TypeHint<Tuple8<Object, Object, Object, Object, Object, Object, Object, Object>>() {
                 }))
             .filter(tuple -> {
                 Object key = tuple.getField(0);
@@ -116,18 +116,18 @@ public class GangesEvaluation {
             })
             .keyBy(tuple -> tuple.getField(0))
             .connect(ruleBroadcastStream)
-            .process(new CastleFunction<Long, Tuple7<Object, Object, Object, Object, Object, Object, Object>, Tuple8<Object, Object, Object, Object, Object, Object, Object, Object>>(
+            .process(new CastleFunction<Long, Tuple8<Object, Object, Object, Object, Object, Object, Object, Object>, Tuple9<Object, Object, Object, Object, Object, Object, Object, Object, Object>>(
                 0, k, l, delta, beta, zeta, mu, true, 2, rules))
-            .returns(TypeInformation.of(new TypeHint<Tuple8<Object, Object, Object, Object, Object, Object, Object, Object>>() {
+            .returns(TypeInformation.of(new TypeHint<Tuple9<Object, Object, Object, Object, Object, Object, Object, Object, Object>>() {
                 }))
             .name(evalDescription);
 
         // Create a Kafka sink
-        KafkaSink<Tuple8<Object, Object, Object, Object, Object, Object, Object, Object>> sink = KafkaSink.<Tuple8<Object, Object, Object, Object, Object, Object, Object, Object>>builder()
+        KafkaSink<Tuple9<Object, Object, Object, Object, Object, Object, Object, Object, Object>> sink = KafkaSink.<Tuple9<Object, Object, Object, Object, Object, Object, Object, Object, Object>>builder()
         .setBootstrapServers("kafka:29092") // "127.0.0.1:9092" "kafka:29092"
         .setRecordSerializer(KafkaRecordSerializationSchema.builder()
             .setTopic("prink-topic")
-            .setValueSerializationSchema(new TupleToJson<Tuple8<Object, Object, Object, Object, Object, Object, Object, Object>>())
+            .setValueSerializationSchema(new TupleToJson<Tuple9<Object, Object, Object, Object, Object, Object, Object, Object, Object>>())
             .build())
         .build();
 
@@ -144,7 +144,8 @@ public class GangesEvaluation {
         RESP(new AggregationIntegerGeneralizer(Tuple2.of(0, 3)), true),
         BPS(new AggregationIntegerGeneralizer(Tuple2.of(0, 3)), true),
         PULSE(new AggregationIntegerGeneralizer(Tuple2.of(0, 3)), true),
-        TEMP(new AggregationIntegerGeneralizer(Tuple2.of(0, 3)), true)
+        TEMP(new AggregationIntegerGeneralizer(Tuple2.of(0, 3)), true),
+        WAVEFORM(new NoneGeneralizer(), false)
        ;
 
         private final BaseGeneralizer generalizer;
@@ -236,7 +237,7 @@ public class GangesEvaluation {
         public T map(String s) throws Exception {
             ObjectMapper objectMapper = new ObjectMapper();
             JsonNode jsonNode = objectMapper.readTree(s);
-            T newTuple = (T) Tuple.newInstance(7);
+            T newTuple = (T) Tuple.newInstance(8);
             try {
                 newTuple.setField(jsonNode.get("recordid").asInt(), 0);
                 newTuple.setField(jsonNode.get("userid").asText(), 1);  // needs to be string, because of leading 0
@@ -245,6 +246,7 @@ public class GangesEvaluation {
                 newTuple.setField(jsonNode.get("bps").asInt(), 4);
                 newTuple.setField(jsonNode.get("pulse").asInt(), 5);
                 newTuple.setField(jsonNode.get("temp").asInt(), 6);
+                newTuple.setField(jsonNode.get("waveformlabel").asText(), 7);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -266,7 +268,8 @@ public class GangesEvaluation {
             outputJson.put("bps", t.getField(4).toString());
             outputJson.put("pulse", t.getField(5).toString());
             outputJson.put("temp", t.getField(6).toString());
-            outputJson.put("infoloss", t.getField(7).toString());
+            outputJson.put("waveformlabel", t.getField(7).toString());
+            outputJson.put("infoloss", t.getField(8).toString());
 
             LOG.debug(outputJson.toString());
             return outputJson.toString().getBytes(StandardCharsets.UTF_8);
