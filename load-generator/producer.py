@@ -69,7 +69,7 @@ def main():
                     except KafkaError as e:
                         print(f'{time.strftime("%Y-%m-%d %H:%M:%S")} Failed to send message: {e}', flush=True)
                 message_count += 1
-                time.sleep(0.1)
+                time.sleep(1)
         except NoBrokersAvailable:
             print(f'{time.strftime("%Y-%m-%d %H:%M:%S")} No brokers available. Retrying...', flush=True)
             retries -= 1
