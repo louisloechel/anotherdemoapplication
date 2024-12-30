@@ -48,6 +48,9 @@ def generate_oxflow():
 def generate_escalation():
     return random.choice(["Yes", "No"])
 
+def generate_waveform_label():
+    return random.choice(["", "I", "II", "III", "aVR", "awV", "Pleth", "aVF", "V1", "V2", "V3", "V4", "V5", "V6"]) # waveform labels found in example dataset 
+
 # Generate unique users with consistent userids
 def generate_users(num_users=10):
     users = []
@@ -100,7 +103,8 @@ def generate_synthetic_data_for_user(user, num_timestamps=100, interval_minutes=
             "userinitials": user["userinitials"],
             "username": user["username"],           # firstname lastname
             "userid": user["userid"],
-            "escalation": generate_escalation()
+            "escalation": generate_escalation(),
+            "waveformlabel": generate_waveform_label()
         }
         user_data.append(entry)
     
@@ -125,4 +129,4 @@ def generate_and_save_user_data(num_users, num_timestamps, interval_minutes):
         print(f"Data saved for user {user['username']} with userid {user['userid']} at {file_path}")
 
 # Run the function
-generate_and_save_user_data(num_users=10, num_timestamps=100, interval_minutes=10)
+generate_and_save_user_data(num_users=20, num_timestamps=10000, interval_minutes=10)

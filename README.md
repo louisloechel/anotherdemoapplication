@@ -30,7 +30,11 @@ docker-compose up --build
 
 #### Grafana:
 - Grafana available at http://localhost:3000
-![](else/news2_dashboard_comp.png)
+
+##### Dashboard Views
+![](else/news2_dashboard_comp_2.png)
+
+![](else/parameter_check.png)
 
 #### Prometheus:
 - Prometheus: [Dashboard](http://localhost:9090/graph?g0.expr=kafka_consumer_messages_total&g0.tab=0&g0.display_mode=lines&g0.show_exemplars=0&g0.range_input=1h)

@@ -65,16 +65,20 @@ def consume_messages():
                 # resp, bps, pulse, temp
                 if 'userid' in message:
                     userid = message['userid']
+                    waveformlabel = message['waveformlabel']
                     for key, value in message.items():
                         topic = msg.topic()
                         # Check if the gauge for this key exists with a 'userid' label
                         if key not in gauges:
                             # Define the gauge with 'userid' as a label
-                            gauges[key] = Gauge(f'kafka_consumer_{key}', f'Kafka consumer {key} value', ['userid', 'topic'])
+                            gauges[key] = Gauge(f'kafka_consumer_{key}', f'Kafka consumer {key} value', ['userid', 'topic', 'waveformlabel'])
                         
                         # Process the value, e.g., if it’s a tuple in string format "(123,456)"
                         if topic == 'prink-topic':
-                            if value[0] == '(':
+                            # if value is empty string, skip
+                            if value == '':
+                                continue
+                            elif value[0] == '(':
                                 # value is tuple, (123,456), rm (), split by , and take first element
                                 value = value[1:-1]
                                 value_avg = (float(value.split(',')[0]) + float(value.split(',')[1])) / 2
@@ -86,10 +90,10 @@ def consume_messages():
                         except ValueError:
                             continue  # or handle the error as appropriate
                         
-                        print(f"value={value}")
+                        print(f"(key, value) = ({key}, {value})")
                         
                         # Set the gauge with the specific 'userid' label value
-                        gauges[key].labels(userid=userid, topic=topic).set(value)
+                        gauges[key].labels(userid=userid, topic=topic, waveformlabel=waveformlabel).set(value)
 
                     ## QA use case
                     # check if the 'correct_bed_registration' gauge exists, if not, create it
