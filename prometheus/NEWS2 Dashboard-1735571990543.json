@@ -55,35 +55,47 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 21,
+        "h": 16,
         "w": 12,
         "x": 0,
         "y": 1
       },
-      "id": 46,
+      "id": 49,
       "options": {
         "calculate": false,
-        "cellGap": 1,
+        "calculation": {
+          "xBuckets": {
+            "mode": "count"
+          },
+          "yBuckets": {
+            "mode": "count"
+          }
+        },
+        "cellGap": 2,
+        "cellValues": {
+          "unit": "none"
+        },
         "color": {
           "exponent": 0.5,
           "fill": "dark-orange",
           "mode": "scheme",
-          "reverse": true,
+          "reverse": false,
           "scale": "exponential",
           "scheme": "Greens",
-          "steps": 128
+          "steps": 64
         },
         "exemplars": {
           "color": "rgba(255,0,255,0.7)"
         },
         "filterValues": {
-          "le": 1e-9
+          "le": 0
         },
         "legend": {
           "show": true
         },
         "rowsFrame": {
-          "layout": "auto"
+          "layout": "unknown",
+          "value": "Updates within 5'"
         },
         "tooltip": {
           "mode": "single",
@@ -91,8 +103,10 @@
           "yHistogram": false
         },
         "yAxis": {
+          "axisLabel": "user ID",
           "axisPlacement": "left",
-          "reverse": false
+          "reverse": false,
+          "unit": "string"
         }
       },
       "pluginVersion": "11.4.0",
@@ -100,16 +114,54 @@
         {
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "changes(kafka_consumer_recordid{topic=\"processed-topic\", waveformlabel=\"I\"}[5m])",
+          "exemplar": false,
+          "expr": "changes(kafka_consumer_recordid{topic=\"processed-topic\", waveformlabel=\"Pleth\", userid=\"0311047\"}[5m])",
+          "format": "time_series",
           "fullMetaSearch": false,
+          "hide": true,
           "includeNullMetadata": true,
+          "instant": false,
           "legendFormat": "{{userid}}",
           "range": true,
           "refId": "A",
           "useBackend": false
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "adyyzm74ahla8e"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "changes(kafka_consumer_recordid{topic=\"processed-topic\", waveformlabel!=\"\"}[5m])",
+          "hide": true,
+          "instant": false,
+          "interval": "",
+          "legendFormat": "{{userid}}",
+          "range": true,
+          "refId": "B"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "adyyzm74ahla8e"
+          },
+          "disableTextWrap": false,
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "changes(kafka_consumer_recordid{topic=\"processed-topic\", waveformlabel=\"I\"}[5m])",
+          "format": "time_series",
+          "fullMetaSearch": false,
+          "hide": false,
+          "includeNullMetadata": true,
+          "instant": false,
+          "legendFormat": "{{userid}}",
+          "range": true,
+          "refId": "C",
+          "useBackend": false
         }
       ],
-      "title": "[All Users] Parameter Check",
+      "title": "[All Users] #Updates to all waveform parameters",
       "transparent": true,
       "type": "heatmap"
     },
@@ -133,35 +185,47 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 21,
+        "h": 16,
         "w": 12,
         "x": 12,
         "y": 1
       },
-      "id": 42,
+      "id": 43,
       "options": {
         "calculate": false,
-        "cellGap": 1,
+        "calculation": {
+          "xBuckets": {
+            "mode": "count"
+          },
+          "yBuckets": {
+            "mode": "count"
+          }
+        },
+        "cellGap": 2,
+        "cellValues": {
+          "unit": "none"
+        },
         "color": {
           "exponent": 0.5,
           "fill": "dark-orange",
           "mode": "scheme",
-          "reverse": true,
+          "reverse": false,
           "scale": "exponential",
           "scheme": "Greens",
-          "steps": 128
+          "steps": 64
         },
         "exemplars": {
           "color": "rgba(255,0,255,0.7)"
         },
         "filterValues": {
-          "le": 1e-9
+          "le": 0
         },
         "legend": {
           "show": true
         },
         "rowsFrame": {
-          "layout": "auto"
+          "layout": "unknown",
+          "value": "Updates within 5'"
         },
         "tooltip": {
           "mode": "single",
@@ -169,8 +233,10 @@
           "yHistogram": false
         },
         "yAxis": {
+          "axisLabel": "user ID",
           "axisPlacement": "left",
-          "reverse": false
+          "reverse": false,
+          "unit": "string"
         }
       },
       "pluginVersion": "11.4.0",
@@ -178,16 +244,54 @@
         {
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "changes(kafka_consumer_recordid{topic=\"processed-topic\", waveformlabel=\"I\"}[5m])",
+          "exemplar": false,
+          "expr": "changes(kafka_consumer_recordid{topic=\"processed-topic\", waveformlabel=\"Pleth\", userid=\"0311047\"}[5m])",
+          "format": "time_series",
           "fullMetaSearch": false,
+          "hide": true,
           "includeNullMetadata": true,
+          "instant": false,
           "legendFormat": "{{userid}}",
           "range": true,
           "refId": "A",
           "useBackend": false
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "adyyzm74ahla8e"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "changes(kafka_consumer_recordid{topic=\"processed-topic\", waveformlabel!=\"\"}[5m])",
+          "hide": true,
+          "instant": false,
+          "interval": "",
+          "legendFormat": "{{userid}}",
+          "range": true,
+          "refId": "B"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "adyyzm74ahla8e"
+          },
+          "disableTextWrap": false,
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "changes(kafka_consumer_recordid{topic=\"processed-topic\", waveformlabel=\"I\"}[5m])",
+          "format": "time_series",
+          "fullMetaSearch": false,
+          "hide": false,
+          "includeNullMetadata": true,
+          "instant": false,
+          "legendFormat": "{{userid}}",
+          "range": true,
+          "refId": "C",
+          "useBackend": false
         }
       ],
-      "title": "[All Users] Parameter Check",
+      "title": "[All Users] #Updates to all waveform parameters",
       "transparent": true,
       "type": "heatmap"
     },
@@ -216,7 +320,7 @@
         "h": 12,
         "w": 12,
         "x": 0,
-        "y": 22
+        "y": 17
       },
       "id": 47,
       "options": {
@@ -229,7 +333,7 @@
           "exponent": 0.5,
           "fill": "dark-orange",
           "mode": "scheme",
-          "reverse": false,
+          "reverse": true,
           "scale": "exponential",
           "scheme": "Greens",
           "steps": 128
@@ -244,7 +348,8 @@
           "show": true
         },
         "rowsFrame": {
-          "layout": "auto"
+          "layout": "auto",
+          "value": "Updates within 5'"
         },
         "tooltip": {
           "mode": "single",
@@ -309,7 +414,7 @@
         "h": 12,
         "w": 12,
         "x": 12,
-        "y": 22
+        "y": 17
       },
       "id": 41,
       "options": {
@@ -322,7 +427,7 @@
           "exponent": 0.5,
           "fill": "dark-orange",
           "mode": "scheme",
-          "reverse": false,
+          "reverse": true,
           "scale": "exponential",
           "scheme": "Greens",
           "steps": 128
@@ -337,7 +442,8 @@
           "show": true
         },
         "rowsFrame": {
-          "layout": "auto"
+          "layout": "auto",
+          "value": "Updates within 5'"
         },
         "tooltip": {
           "mode": "single",
@@ -408,7 +514,7 @@
         "h": 3,
         "w": 12,
         "x": 0,
-        "y": 34
+        "y": 29
       },
       "id": 48,
       "options": {
@@ -481,7 +587,7 @@
         "h": 3,
         "w": 12,
         "x": 12,
-        "y": 34
+        "y": 29
       },
       "id": 45,
       "options": {
@@ -524,461 +630,204 @@
       "type": "stat"
     },
     {
-      "datasource": {
-        "uid": "adyyzm74ahla8e"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "custom": {
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "scaleDistribution": {
-              "type": "linear"
-            }
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 14,
-        "w": 12,
-        "x": 0,
-        "y": 37
-      },
-      "id": 49,
-      "options": {
-        "calculate": false,
-        "calculation": {
-          "xBuckets": {
-            "mode": "count"
-          },
-          "yBuckets": {
-            "mode": "count"
-          }
-        },
-        "cellGap": 2,
-        "cellValues": {
-          "unit": "updates within 5'"
-        },
-        "color": {
-          "exponent": 0.5,
-          "fill": "dark-orange",
-          "mode": "scheme",
-          "reverse": false,
-          "scale": "exponential",
-          "scheme": "Greens",
-          "steps": 64
-        },
-        "exemplars": {
-          "color": "rgba(255,0,255,0.7)"
-        },
-        "filterValues": {
-          "le": 0
-        },
-        "legend": {
-          "show": true
-        },
-        "rowsFrame": {
-          "layout": "unknown"
-        },
-        "tooltip": {
-          "mode": "single",
-          "showColorScale": false,
-          "yHistogram": false
-        },
-        "yAxis": {
-          "axisLabel": "user ID",
-          "axisPlacement": "left",
-          "reverse": false,
-          "unit": "string"
-        }
-      },
-      "pluginVersion": "11.4.0",
-      "targets": [
-        {
-          "disableTextWrap": false,
-          "editorMode": "builder",
-          "exemplar": false,
-          "expr": "changes(kafka_consumer_recordid{topic=\"processed-topic\", waveformlabel=\"Pleth\", userid=\"0311047\"}[5m])",
-          "format": "time_series",
-          "fullMetaSearch": false,
-          "hide": true,
-          "includeNullMetadata": true,
-          "instant": false,
-          "legendFormat": "{{userid}}",
-          "range": true,
-          "refId": "A",
-          "useBackend": false
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "adyyzm74ahla8e"
-          },
-          "editorMode": "code",
-          "exemplar": false,
-          "expr": "changes(kafka_consumer_recordid{topic=\"processed-topic\", waveformlabel!=\"\"}[5m])",
-          "hide": true,
-          "instant": false,
-          "interval": "",
-          "legendFormat": "{{userid}}",
-          "range": true,
-          "refId": "B"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "adyyzm74ahla8e"
-          },
-          "disableTextWrap": false,
-          "editorMode": "code",
-          "exemplar": false,
-          "expr": "changes(kafka_consumer_recordid{topic=\"processed-topic\", waveformlabel=\"I\"}[5m])",
-          "format": "time_series",
-          "fullMetaSearch": false,
-          "hide": false,
-          "includeNullMetadata": true,
-          "instant": false,
-          "legendFormat": "{{userid}}",
-          "range": true,
-          "refId": "C",
-          "useBackend": false
-        }
-      ],
-      "title": "[All Users] #Updates to all waveform parameters",
-      "transparent": true,
-      "type": "heatmap"
-    },
-    {
-      "datasource": {
-        "uid": "adyyzm74ahla8e"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "custom": {
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "scaleDistribution": {
-              "type": "linear"
-            }
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 14,
-        "w": 12,
-        "x": 12,
-        "y": 37
-      },
-      "id": 43,
-      "options": {
-        "calculate": false,
-        "calculation": {
-          "xBuckets": {
-            "mode": "count"
-          },
-          "yBuckets": {
-            "mode": "count"
-          }
-        },
-        "cellGap": 2,
-        "cellValues": {
-          "unit": "updates within 5'"
-        },
-        "color": {
-          "exponent": 0.5,
-          "fill": "dark-orange",
-          "mode": "scheme",
-          "reverse": false,
-          "scale": "exponential",
-          "scheme": "Greens",
-          "steps": 64
-        },
-        "exemplars": {
-          "color": "rgba(255,0,255,0.7)"
-        },
-        "filterValues": {
-          "le": 0
-        },
-        "legend": {
-          "show": true
-        },
-        "rowsFrame": {
-          "layout": "unknown"
-        },
-        "tooltip": {
-          "mode": "single",
-          "showColorScale": false,
-          "yHistogram": false
-        },
-        "yAxis": {
-          "axisLabel": "user ID",
-          "axisPlacement": "left",
-          "reverse": false,
-          "unit": "string"
-        }
-      },
-      "pluginVersion": "11.4.0",
-      "targets": [
-        {
-          "disableTextWrap": false,
-          "editorMode": "builder",
-          "exemplar": false,
-          "expr": "changes(kafka_consumer_recordid{topic=\"processed-topic\", waveformlabel=\"Pleth\", userid=\"0311047\"}[5m])",
-          "format": "time_series",
-          "fullMetaSearch": false,
-          "hide": true,
-          "includeNullMetadata": true,
-          "instant": false,
-          "legendFormat": "{{userid}}",
-          "range": true,
-          "refId": "A",
-          "useBackend": false
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "adyyzm74ahla8e"
-          },
-          "editorMode": "code",
-          "exemplar": false,
-          "expr": "changes(kafka_consumer_recordid{topic=\"processed-topic\", waveformlabel!=\"\"}[5m])",
-          "hide": true,
-          "instant": false,
-          "interval": "",
-          "legendFormat": "{{userid}}",
-          "range": true,
-          "refId": "B"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "adyyzm74ahla8e"
-          },
-          "disableTextWrap": false,
-          "editorMode": "code",
-          "exemplar": false,
-          "expr": "changes(kafka_consumer_recordid{topic=\"processed-topic\", waveformlabel=\"I\"}[5m])",
-          "format": "time_series",
-          "fullMetaSearch": false,
-          "hide": false,
-          "includeNullMetadata": true,
-          "instant": false,
-          "legendFormat": "{{userid}}",
-          "range": true,
-          "refId": "C",
-          "useBackend": false
-        }
-      ],
-      "title": "[All Users] #Updates to all waveform parameters",
-      "transparent": true,
-      "type": "heatmap"
-    },
-    {
-      "collapsed": false,
+      "collapsed": true,
       "gridPos": {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 51
+        "y": 32
       },
       "id": 34,
-      "panels": [],
+      "panels": [
+        {
+          "datasource": {
+            "default": false,
+            "type": "prometheus",
+            "uid": "adyyzm74ahla8e"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "custom": {
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "scaleDistribution": {
+                  "type": "linear"
+                }
+              }
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 12,
+            "w": 12,
+            "x": 0,
+            "y": 52
+          },
+          "id": 39,
+          "options": {
+            "calculate": false,
+            "cellGap": 2,
+            "cellValues": {
+              "unit": "bool"
+            },
+            "color": {
+              "exponent": 0.5,
+              "fill": "dark-orange",
+              "max": 1,
+              "min": 0,
+              "mode": "scheme",
+              "reverse": true,
+              "scale": "exponential",
+              "scheme": "RdYlGn",
+              "steps": 2
+            },
+            "exemplars": {
+              "color": "rgba(255,0,255,0.7)"
+            },
+            "filterValues": {
+              "le": -1
+            },
+            "legend": {
+              "show": true
+            },
+            "rowsFrame": {
+              "layout": "auto"
+            },
+            "tooltip": {
+              "mode": "single",
+              "showColorScale": true,
+              "yHistogram": false
+            },
+            "yAxis": {
+              "axisLabel": "userid",
+              "axisPlacement": "right",
+              "reverse": false,
+              "unit": "string"
+            }
+          },
+          "pluginVersion": "11.4.0",
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "adyyzm74ahla8e"
+              },
+              "disableTextWrap": false,
+              "editorMode": "builder",
+              "expr": "kafka_consumer_correct_bed_registration{topic=\"processed-topic\"}",
+              "fullMetaSearch": false,
+              "hide": false,
+              "includeNullMetadata": true,
+              "instant": false,
+              "legendFormat": " {{userid}}",
+              "range": true,
+              "refId": "bed_registration",
+              "useBackend": false
+            }
+          ],
+          "title": "[All Users] Bed Registration",
+          "transparent": true,
+          "type": "heatmap"
+        },
+        {
+          "datasource": {
+            "default": false,
+            "type": "prometheus",
+            "uid": "adyyzm74ahla8e"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "custom": {
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "scaleDistribution": {
+                  "type": "linear"
+                }
+              }
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 12,
+            "w": 12,
+            "x": 12,
+            "y": 52
+          },
+          "id": 4,
+          "options": {
+            "calculate": false,
+            "cellGap": 2,
+            "cellValues": {
+              "unit": "bool"
+            },
+            "color": {
+              "exponent": 0.5,
+              "fill": "dark-orange",
+              "max": 1,
+              "min": 0,
+              "mode": "scheme",
+              "reverse": true,
+              "scale": "exponential",
+              "scheme": "RdYlGn",
+              "steps": 2
+            },
+            "exemplars": {
+              "color": "rgba(255,0,255,0.7)"
+            },
+            "filterValues": {
+              "le": -1
+            },
+            "legend": {
+              "show": true
+            },
+            "rowsFrame": {
+              "layout": "auto"
+            },
+            "tooltip": {
+              "mode": "single",
+              "showColorScale": true,
+              "yHistogram": false
+            },
+            "yAxis": {
+              "axisLabel": "userid",
+              "axisPlacement": "right",
+              "reverse": false,
+              "unit": "string"
+            }
+          },
+          "pluginVersion": "11.4.0",
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "adyyzm74ahla8e"
+              },
+              "disableTextWrap": false,
+              "editorMode": "builder",
+              "expr": "kafka_consumer_correct_bed_registration{topic=\"prink-topic\"}",
+              "fullMetaSearch": false,
+              "hide": false,
+              "includeNullMetadata": true,
+              "instant": false,
+              "legendFormat": " {{userid}}",
+              "range": true,
+              "refId": "bed_registration",
+              "useBackend": false
+            }
+          ],
+          "title": "[All Users] Bed Registration",
+          "transparent": true,
+          "type": "heatmap"
+        }
+      ],
       "title": "[QA use case] Bed assignment/registration",
       "type": "row"
-    },
-    {
-      "datasource": {
-        "default": false,
-        "type": "prometheus",
-        "uid": "adyyzm74ahla8e"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "custom": {
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "scaleDistribution": {
-              "type": "linear"
-            }
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 12,
-        "w": 12,
-        "x": 0,
-        "y": 52
-      },
-      "id": 39,
-      "options": {
-        "calculate": false,
-        "cellGap": 2,
-        "cellValues": {
-          "unit": "bool"
-        },
-        "color": {
-          "exponent": 0.5,
-          "fill": "dark-orange",
-          "max": 1,
-          "min": 0,
-          "mode": "scheme",
-          "reverse": true,
-          "scale": "exponential",
-          "scheme": "RdYlGn",
-          "steps": 2
-        },
-        "exemplars": {
-          "color": "rgba(255,0,255,0.7)"
-        },
-        "filterValues": {
-          "le": -1
-        },
-        "legend": {
-          "show": true
-        },
-        "rowsFrame": {
-          "layout": "auto"
-        },
-        "tooltip": {
-          "mode": "single",
-          "showColorScale": true,
-          "yHistogram": false
-        },
-        "yAxis": {
-          "axisLabel": "userid",
-          "axisPlacement": "right",
-          "reverse": false,
-          "unit": "string"
-        }
-      },
-      "pluginVersion": "11.4.0",
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "adyyzm74ahla8e"
-          },
-          "disableTextWrap": false,
-          "editorMode": "builder",
-          "expr": "kafka_consumer_correct_bed_registration{topic=\"processed-topic\"}",
-          "fullMetaSearch": false,
-          "hide": false,
-          "includeNullMetadata": true,
-          "instant": false,
-          "legendFormat": " {{userid}}",
-          "range": true,
-          "refId": "bed_registration",
-          "useBackend": false
-        }
-      ],
-      "title": "[All Users] Bed Registration",
-      "transparent": true,
-      "type": "heatmap"
-    },
-    {
-      "datasource": {
-        "default": false,
-        "type": "prometheus",
-        "uid": "adyyzm74ahla8e"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "custom": {
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "scaleDistribution": {
-              "type": "linear"
-            }
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 12,
-        "w": 12,
-        "x": 12,
-        "y": 52
-      },
-      "id": 4,
-      "options": {
-        "calculate": false,
-        "cellGap": 2,
-        "cellValues": {
-          "unit": "bool"
-        },
-        "color": {
-          "exponent": 0.5,
-          "fill": "dark-orange",
-          "max": 1,
-          "min": 0,
-          "mode": "scheme",
-          "reverse": true,
-          "scale": "exponential",
-          "scheme": "RdYlGn",
-          "steps": 2
-        },
-        "exemplars": {
-          "color": "rgba(255,0,255,0.7)"
-        },
-        "filterValues": {
-          "le": -1
-        },
-        "legend": {
-          "show": true
-        },
-        "rowsFrame": {
-          "layout": "auto"
-        },
-        "tooltip": {
-          "mode": "single",
-          "showColorScale": true,
-          "yHistogram": false
-        },
-        "yAxis": {
-          "axisLabel": "userid",
-          "axisPlacement": "right",
-          "reverse": false,
-          "unit": "string"
-        }
-      },
-      "pluginVersion": "11.4.0",
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "adyyzm74ahla8e"
-          },
-          "disableTextWrap": false,
-          "editorMode": "builder",
-          "expr": "kafka_consumer_correct_bed_registration{topic=\"prink-topic\"}",
-          "fullMetaSearch": false,
-          "hide": false,
-          "includeNullMetadata": true,
-          "instant": false,
-          "legendFormat": " {{userid}}",
-          "range": true,
-          "refId": "bed_registration",
-          "useBackend": false
-        }
-      ],
-      "title": "[All Users] Bed Registration",
-      "transparent": true,
-      "type": "heatmap"
     },
     {
       "collapsed": true,
@@ -986,7 +835,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 64
+        "y": 33
       },
       "id": 24,
       "panels": [
@@ -1058,7 +907,7 @@
             "h": 8,
             "w": 20,
             "x": 0,
-            "y": 197
+            "y": 247
           },
           "id": 25,
           "options": {
@@ -1126,7 +975,7 @@
             "h": 8,
             "w": 4,
             "x": 20,
-            "y": 197
+            "y": 247
           },
           "id": 28,
           "options": {
@@ -1233,7 +1082,7 @@
             "h": 8,
             "w": 20,
             "x": 0,
-            "y": 205
+            "y": 255
           },
           "id": 26,
           "options": {
@@ -1301,7 +1150,7 @@
             "h": 8,
             "w": 4,
             "x": 20,
-            "y": 205
+            "y": 255
           },
           "id": 29,
           "options": {
@@ -1408,7 +1257,7 @@
             "h": 8,
             "w": 20,
             "x": 0,
-            "y": 213
+            "y": 263
           },
           "id": 30,
           "options": {
@@ -1476,7 +1325,7 @@
             "h": 8,
             "w": 4,
             "x": 20,
-            "y": 213
+            "y": 263
           },
           "id": 31,
           "options": {
@@ -1583,7 +1432,7 @@
             "h": 8,
             "w": 20,
             "x": 0,
-            "y": 221
+            "y": 271
           },
           "id": 32,
           "options": {
@@ -1651,7 +1500,7 @@
             "h": 8,
             "w": 4,
             "x": 20,
-            "y": 221
+            "y": 271
           },
           "id": 33,
           "options": {
@@ -1703,7 +1552,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 65
+        "y": 34
       },
       "id": 15,
       "panels": [
@@ -1716,7 +1565,7 @@
             "h": 3,
             "w": 14,
             "x": 10,
-            "y": 230
+            "y": 280
           },
           "id": 18,
           "options": {
@@ -1765,7 +1614,7 @@
             "h": 17,
             "w": 11,
             "x": 0,
-            "y": 233
+            "y": 283
           },
           "id": 17,
           "options": {
@@ -1838,7 +1687,7 @@
             "h": 17,
             "w": 8,
             "x": 12,
-            "y": 233
+            "y": 283
           },
           "id": 23,
           "options": {
@@ -1920,7 +1769,7 @@
             "h": 5,
             "w": 4,
             "x": 20,
-            "y": 233
+            "y": 283
           },
           "id": 22,
           "options": {
@@ -1994,7 +1843,7 @@
             "h": 7,
             "w": 4,
             "x": 20,
-            "y": 238
+            "y": 288
           },
           "id": 21,
           "options": {
@@ -2068,7 +1917,7 @@
             "h": 5,
             "w": 4,
             "x": 20,
-            "y": 245
+            "y": 295
           },
           "id": 20,
           "options": {
@@ -2115,1030 +1964,1062 @@
       "type": "row"
     },
     {
-      "collapsed": false,
+      "collapsed": true,
       "gridPos": {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 66
+        "y": 35
       },
       "id": 10,
-      "panels": [],
+      "panels": [
+        {
+          "datasource": {
+            "default": false,
+            "type": "prometheus",
+            "uid": "adyyzm74ahla8e"
+          },
+          "description": "Sum of physiological parameter scores.",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "continuous-GrYlRd"
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 15,
+            "w": 12,
+            "x": 0,
+            "y": 117
+          },
+          "id": 5,
+          "options": {
+            "displayMode": "gradient",
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": false
+            },
+            "maxVizHeight": 300,
+            "minVizHeight": 16,
+            "minVizWidth": 8,
+            "namePlacement": "auto",
+            "orientation": "horizontal",
+            "reduceOptions": {
+              "calcs": [
+                "last"
+              ],
+              "fields": "",
+              "values": true
+            },
+            "showUnfilled": true,
+            "sizing": "auto",
+            "text": {
+              "titleSize": 10
+            },
+            "valueMode": "color"
+          },
+          "pluginVersion": "11.4.0",
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "adyyzm74ahla8e"
+              },
+              "disableTextWrap": false,
+              "editorMode": "builder",
+              "expr": "max by (userid) (kafka_consumer_bps{topic=\"processed-topic\"}) + max by (userid) (kafka_consumer_resp{topic=\"processed-topic\"}) + max by (userid) (kafka_consumer_pulse{topic=\"processed-topic\"}) + max by (userid) (kafka_consumer_temp{topic=\"processed-topic\"})",
+              "fullMetaSearch": false,
+              "hide": false,
+              "includeNullMetadata": true,
+              "instant": false,
+              "legendFormat": "{{userid}}",
+              "range": true,
+              "refId": "NEWS2",
+              "useBackend": false
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "adyyzm74ahla8e"
+              },
+              "disableTextWrap": false,
+              "editorMode": "code",
+              "exemplar": false,
+              "expr": "max by (userid) (kafka_consumer_bps{topic=\"processed-topic\"})",
+              "fullMetaSearch": false,
+              "hide": true,
+              "includeNullMetadata": true,
+              "instant": true,
+              "legendFormat": "{{userid}}, {{waveformlabel}}",
+              "range": false,
+              "refId": "A",
+              "useBackend": false
+            }
+          ],
+          "title": "[All Users] NEWS2",
+          "transparent": true,
+          "type": "bargauge"
+        },
+        {
+          "datasource": {
+            "default": false,
+            "type": "prometheus",
+            "uid": "adyyzm74ahla8e"
+          },
+          "description": "Sum of physiological parameter scores.",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "continuous-GrYlRd"
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 15,
+            "w": 8,
+            "x": 12,
+            "y": 117
+          },
+          "id": 12,
+          "options": {
+            "displayMode": "gradient",
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": false
+            },
+            "maxVizHeight": 300,
+            "minVizHeight": 16,
+            "minVizWidth": 8,
+            "namePlacement": "auto",
+            "orientation": "horizontal",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "showUnfilled": true,
+            "sizing": "auto",
+            "text": {
+              "titleSize": 10
+            },
+            "valueMode": "color"
+          },
+          "pluginVersion": "11.4.0",
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "adyyzm74ahla8e"
+              },
+              "disableTextWrap": false,
+              "editorMode": "builder",
+              "expr": "max by(userid) (kafka_consumer_bps{topic=\"prink-topic\"}) + max by(userid) (kafka_consumer_resp{topic=\"prink-topic\"}) + max by(userid) (kafka_consumer_pulse{topic=\"prink-topic\"}) + max by(userid) (kafka_consumer_temp{topic=\"prink-topic\"})",
+              "fullMetaSearch": false,
+              "includeNullMetadata": true,
+              "instant": false,
+              "legendFormat": "{{userid}}",
+              "range": true,
+              "refId": "NEWS2",
+              "useBackend": false
+            }
+          ],
+          "title": "[All Users] NEWS2 ANON",
+          "transparent": true,
+          "type": "bargauge"
+        },
+        {
+          "datasource": {
+            "default": false,
+            "type": "prometheus",
+            "uid": "adyyzm74ahla8e"
+          },
+          "description": "",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "continuous-GrYlRd"
+              },
+              "fieldMinMax": false,
+              "mappings": [],
+              "max": 1,
+              "min": 0,
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 15,
+            "w": 4,
+            "x": 20,
+            "y": 117
+          },
+          "id": 14,
+          "options": {
+            "displayMode": "gradient",
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": false
+            },
+            "maxVizHeight": 300,
+            "minVizHeight": 16,
+            "minVizWidth": 8,
+            "namePlacement": "auto",
+            "orientation": "horizontal",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "showUnfilled": true,
+            "sizing": "auto",
+            "text": {
+              "titleSize": 10
+            },
+            "valueMode": "color"
+          },
+          "pluginVersion": "11.4.0",
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "adyyzm74ahla8e"
+              },
+              "disableTextWrap": false,
+              "editorMode": "builder",
+              "expr": "max by(userid) (kafka_consumer_infoloss{topic=\"prink-topic\"})",
+              "fullMetaSearch": false,
+              "includeNullMetadata": true,
+              "instant": false,
+              "legendFormat": "{{userid}}",
+              "range": true,
+              "refId": "NEWS2",
+              "useBackend": false
+            }
+          ],
+          "title": "Information Loss",
+          "transparent": true,
+          "type": "bargauge"
+        },
+        {
+          "datasource": {
+            "default": false,
+            "type": "prometheus",
+            "uid": "adyyzm74ahla8e"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "continuous-GrYlRd"
+              },
+              "mappings": [],
+              "max": 3,
+              "min": 0,
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  }
+                ]
+              },
+              "unit": "short"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 6,
+            "w": 12,
+            "x": 0,
+            "y": 132
+          },
+          "id": 35,
+          "options": {
+            "colorMode": "background",
+            "graphMode": "area",
+            "justifyMode": "auto",
+            "orientation": "auto",
+            "percentChangeColorMode": "same_as_value",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "showPercentChange": false,
+            "textMode": "auto",
+            "wideLayout": true
+          },
+          "pluginVersion": "11.4.0",
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "adyyzm74ahla8e"
+              },
+              "disableTextWrap": false,
+              "editorMode": "builder",
+              "exemplar": false,
+              "expr": "max by(userid) (kafka_consumer_bps{topic=\"processed-topic\"})",
+              "fullMetaSearch": false,
+              "hide": true,
+              "includeNullMetadata": true,
+              "instant": false,
+              "legendFormat": " ",
+              "range": true,
+              "refId": "bps",
+              "useBackend": false
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "adyyzm74ahla8e"
+              },
+              "disableTextWrap": false,
+              "editorMode": "builder",
+              "expr": "max by(userid) (kafka_consumer_pulse{topic=\"processed-topic\"})",
+              "fullMetaSearch": false,
+              "hide": false,
+              "includeNullMetadata": true,
+              "instant": false,
+              "legendFormat": " ",
+              "range": true,
+              "refId": "pulse",
+              "useBackend": false
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "adyyzm74ahla8e"
+              },
+              "disableTextWrap": false,
+              "editorMode": "builder",
+              "expr": "kafka_consumer_resp{topic=\"processed-topic\"}",
+              "fullMetaSearch": false,
+              "hide": true,
+              "includeNullMetadata": true,
+              "instant": false,
+              "legendFormat": "RESP",
+              "range": true,
+              "refId": "resp",
+              "useBackend": false
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "adyyzm74ahla8e"
+              },
+              "disableTextWrap": false,
+              "editorMode": "builder",
+              "exemplar": false,
+              "expr": "kafka_consumer_temp{topic=\"processed-topic\"}",
+              "fullMetaSearch": false,
+              "hide": true,
+              "includeNullMetadata": true,
+              "instant": false,
+              "legendFormat": "TEMP",
+              "range": true,
+              "refId": "temp",
+              "useBackend": false
+            }
+          ],
+          "title": "[All Users] PULSE",
+          "transparent": true,
+          "type": "stat"
+        },
+        {
+          "datasource": {
+            "default": false,
+            "type": "prometheus",
+            "uid": "adyyzm74ahla8e"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "continuous-GrYlRd"
+              },
+              "mappings": [],
+              "max": 3,
+              "min": 0,
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  }
+                ]
+              },
+              "unit": "short"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 6,
+            "w": 12,
+            "x": 12,
+            "y": 132
+          },
+          "id": 13,
+          "options": {
+            "colorMode": "background",
+            "graphMode": "area",
+            "justifyMode": "auto",
+            "orientation": "auto",
+            "percentChangeColorMode": "same_as_value",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "showPercentChange": false,
+            "textMode": "auto",
+            "wideLayout": true
+          },
+          "pluginVersion": "11.4.0",
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "adyyzm74ahla8e"
+              },
+              "disableTextWrap": false,
+              "editorMode": "builder",
+              "exemplar": false,
+              "expr": "kafka_consumer_bps{topic=\"prink-topic\"}",
+              "fullMetaSearch": false,
+              "hide": true,
+              "includeNullMetadata": true,
+              "instant": false,
+              "legendFormat": " ",
+              "range": true,
+              "refId": "bps",
+              "useBackend": false
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "adyyzm74ahla8e"
+              },
+              "disableTextWrap": false,
+              "editorMode": "builder",
+              "expr": "max by(userid) (kafka_consumer_pulse{topic=\"prink-topic\"})",
+              "fullMetaSearch": false,
+              "hide": false,
+              "includeNullMetadata": true,
+              "instant": false,
+              "legendFormat": " ",
+              "range": true,
+              "refId": "pulse",
+              "useBackend": false
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "adyyzm74ahla8e"
+              },
+              "disableTextWrap": false,
+              "editorMode": "builder",
+              "expr": "kafka_consumer_resp{topic=\"prink-topic\"}",
+              "fullMetaSearch": false,
+              "hide": true,
+              "includeNullMetadata": true,
+              "instant": false,
+              "legendFormat": "RESP",
+              "range": true,
+              "refId": "resp",
+              "useBackend": false
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "adyyzm74ahla8e"
+              },
+              "disableTextWrap": false,
+              "editorMode": "builder",
+              "exemplar": false,
+              "expr": "kafka_consumer_temp{topic=\"prink-topic\"}",
+              "fullMetaSearch": false,
+              "hide": true,
+              "includeNullMetadata": true,
+              "instant": false,
+              "legendFormat": "TEMP",
+              "range": true,
+              "refId": "temp",
+              "useBackend": false
+            }
+          ],
+          "title": "[All Users] PULSE",
+          "transparent": true,
+          "type": "stat"
+        },
+        {
+          "datasource": {
+            "default": false,
+            "type": "prometheus",
+            "uid": "adyyzm74ahla8e"
+          },
+          "description": "Sum of physiological parameter scores for userid = 0311047.",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "continuous-GrYlRd"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "barWidthFactor": 0.6,
+                "drawStyle": "line",
+                "fillOpacity": 100,
+                "gradientMode": "hue",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineStyle": {
+                  "fill": "solid"
+                },
+                "lineWidth": 1,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "auto",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "mappings": [],
+              "max": 12,
+              "min": 0,
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 0,
+            "y": 138
+          },
+          "id": 50,
+          "options": {
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "tooltip": {
+              "mode": "single",
+              "sort": "none"
+            }
+          },
+          "pluginVersion": "11.4.0",
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "adyyzm74ahla8e"
+              },
+              "disableTextWrap": false,
+              "editorMode": "builder",
+              "expr": "max by(userid) (kafka_consumer_bps{userid=\"0311047\", topic=\"processed-topic\"}) + max by(userid) (kafka_consumer_pulse{userid=\"0311047\", topic=\"processed-topic\"}) + max by(userid) (kafka_consumer_resp{userid=\"0311047\", topic=\"processed-topic\"}) + max by(userid) (kafka_consumer_temp{userid=\"0311047\", topic=\"processed-topic\"})",
+              "fullMetaSearch": false,
+              "includeNullMetadata": true,
+              "instant": false,
+              "legendFormat": " ",
+              "range": true,
+              "refId": "NEWS2",
+              "useBackend": false
+            }
+          ],
+          "title": "User 0311047: NEWS2",
+          "transparent": true,
+          "type": "timeseries"
+        },
+        {
+          "datasource": {
+            "default": false,
+            "type": "prometheus",
+            "uid": "adyyzm74ahla8e"
+          },
+          "description": "Sum of physiological parameter scores for userid = 0311047.",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "continuous-GrYlRd"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "barWidthFactor": 0.6,
+                "drawStyle": "line",
+                "fillOpacity": 100,
+                "gradientMode": "hue",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineStyle": {
+                  "fill": "solid"
+                },
+                "lineWidth": 1,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "auto",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "mappings": [],
+              "max": 12,
+              "min": 0,
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 12,
+            "y": 138
+          },
+          "id": 2,
+          "options": {
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "tooltip": {
+              "mode": "single",
+              "sort": "none"
+            }
+          },
+          "pluginVersion": "11.4.0",
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "adyyzm74ahla8e"
+              },
+              "disableTextWrap": false,
+              "editorMode": "builder",
+              "expr": "max by(userid) (kafka_consumer_bps{userid=\"0311047\", topic=\"prink-topic\"}) + max by(userid) (kafka_consumer_pulse{userid=\"0311047\", topic=\"prink-topic\"}) + max by(userid) (kafka_consumer_resp{userid=\"0311047\", topic=\"prink-topic\"}) + max by(userid) (kafka_consumer_temp{userid=\"0311047\", topic=\"prink-topic\"})",
+              "fullMetaSearch": false,
+              "includeNullMetadata": true,
+              "instant": false,
+              "legendFormat": " ",
+              "range": true,
+              "refId": "NEWS2",
+              "useBackend": false
+            }
+          ],
+          "title": "User 0311047: NEWS2",
+          "transparent": true,
+          "type": "timeseries"
+        },
+        {
+          "datasource": {
+            "default": false,
+            "type": "prometheus",
+            "uid": "adyyzm74ahla8e"
+          },
+          "description": "userid = 0311047",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "thresholds"
+              },
+              "fieldMinMax": false,
+              "mappings": [],
+              "max": 3,
+              "min": 0,
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  },
+                  {
+                    "color": "#6ED0E0",
+                    "value": 0
+                  },
+                  {
+                    "color": "#EAB839",
+                    "value": 1
+                  },
+                  {
+                    "color": "#EF843C",
+                    "value": 2
+                  },
+                  {
+                    "color": "red",
+                    "value": 3
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 5,
+            "w": 12,
+            "x": 0,
+            "y": 146
+          },
+          "id": 51,
+          "options": {
+            "displayMode": "basic",
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": false
+            },
+            "maxVizHeight": 300,
+            "minVizHeight": 16,
+            "minVizWidth": 8,
+            "namePlacement": "auto",
+            "orientation": "auto",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "showUnfilled": true,
+            "sizing": "auto",
+            "text": {},
+            "valueMode": "color"
+          },
+          "pluginVersion": "11.4.0",
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "adyyzm74ahla8e"
+              },
+              "disableTextWrap": false,
+              "editorMode": "builder",
+              "exemplar": false,
+              "expr": "max by(userid) (kafka_consumer_bps{topic=\"processed-topic\", userid=\"0311047\"})",
+              "fullMetaSearch": false,
+              "includeNullMetadata": true,
+              "instant": false,
+              "legendFormat": "systolic blood pressure",
+              "range": true,
+              "refId": "bps",
+              "useBackend": false
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "adyyzm74ahla8e"
+              },
+              "disableTextWrap": false,
+              "editorMode": "builder",
+              "expr": "max by(userid) (kafka_consumer_pulse{topic=\"processed-topic\", userid=\"0311047\"})",
+              "fullMetaSearch": false,
+              "hide": false,
+              "includeNullMetadata": true,
+              "instant": false,
+              "legendFormat": "pulse",
+              "range": true,
+              "refId": "pulse",
+              "useBackend": false
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "adyyzm74ahla8e"
+              },
+              "disableTextWrap": false,
+              "editorMode": "builder",
+              "expr": "max by(userid) (kafka_consumer_resp{topic=\"processed-topic\", userid=\"0311047\"})",
+              "fullMetaSearch": false,
+              "hide": false,
+              "includeNullMetadata": true,
+              "instant": false,
+              "legendFormat": "respiration rate",
+              "range": true,
+              "refId": "resp",
+              "useBackend": false
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "adyyzm74ahla8e"
+              },
+              "disableTextWrap": false,
+              "editorMode": "builder",
+              "expr": "max by(userid) (kafka_consumer_temp{topic=\"processed-topic\", userid=\"0311047\"})",
+              "fullMetaSearch": false,
+              "hide": false,
+              "includeNullMetadata": true,
+              "instant": false,
+              "legendFormat": "temperature",
+              "range": true,
+              "refId": "temp",
+              "useBackend": false
+            }
+          ],
+          "title": "User 0311047: Physiological Parameters ",
+          "transparent": true,
+          "type": "bargauge"
+        },
+        {
+          "datasource": {
+            "default": false,
+            "type": "prometheus",
+            "uid": "adyyzm74ahla8e"
+          },
+          "description": "userid = 0311047",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "thresholds"
+              },
+              "fieldMinMax": false,
+              "mappings": [],
+              "max": 3,
+              "min": 0,
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  },
+                  {
+                    "color": "#6ED0E0",
+                    "value": 0
+                  },
+                  {
+                    "color": "#EAB839",
+                    "value": 1
+                  },
+                  {
+                    "color": "#EF843C",
+                    "value": 2
+                  },
+                  {
+                    "color": "red",
+                    "value": 3
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 5,
+            "w": 12,
+            "x": 12,
+            "y": 146
+          },
+          "id": 1,
+          "options": {
+            "displayMode": "basic",
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": false
+            },
+            "maxVizHeight": 300,
+            "minVizHeight": 16,
+            "minVizWidth": 8,
+            "namePlacement": "auto",
+            "orientation": "auto",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "showUnfilled": true,
+            "sizing": "auto",
+            "text": {},
+            "valueMode": "color"
+          },
+          "pluginVersion": "11.4.0",
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "adyyzm74ahla8e"
+              },
+              "disableTextWrap": false,
+              "editorMode": "builder",
+              "exemplar": false,
+              "expr": "max by(userid) (kafka_consumer_bps{topic=\"prink-topic\", userid=\"0311047\"})",
+              "fullMetaSearch": false,
+              "includeNullMetadata": true,
+              "instant": false,
+              "legendFormat": "systolic blood pressure",
+              "range": true,
+              "refId": "bps",
+              "useBackend": false
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "adyyzm74ahla8e"
+              },
+              "disableTextWrap": false,
+              "editorMode": "builder",
+              "expr": "max by(userid) (kafka_consumer_pulse{topic=\"prink-topic\", userid=\"0311047\"})",
+              "fullMetaSearch": false,
+              "hide": false,
+              "includeNullMetadata": true,
+              "instant": false,
+              "legendFormat": "pulse",
+              "range": true,
+              "refId": "pulse",
+              "useBackend": false
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "adyyzm74ahla8e"
+              },
+              "disableTextWrap": false,
+              "editorMode": "builder",
+              "expr": "max by(userid) (kafka_consumer_resp{topic=\"prink-topic\", userid=\"0311047\"})",
+              "fullMetaSearch": false,
+              "hide": false,
+              "includeNullMetadata": true,
+              "instant": false,
+              "legendFormat": "respiration rate",
+              "range": true,
+              "refId": "resp",
+              "useBackend": false
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "adyyzm74ahla8e"
+              },
+              "disableTextWrap": false,
+              "editorMode": "builder",
+              "expr": "max by(userid) (kafka_consumer_temp{topic=\"prink-topic\", userid=\"0311047\"})",
+              "fullMetaSearch": false,
+              "hide": false,
+              "includeNullMetadata": true,
+              "instant": false,
+              "legendFormat": "temperature",
+              "range": true,
+              "refId": "temp",
+              "useBackend": false
+            }
+          ],
+          "title": "User 0311047: Physiological Parameters ",
+          "transparent": true,
+          "type": "bargauge"
+        }
+      ],
       "title": "Comparison NEWS2",
       "type": "row"
-    },
-    {
-      "datasource": {
-        "default": false,
-        "type": "prometheus",
-        "uid": "adyyzm74ahla8e"
-      },
-      "description": "Sum of physiological parameter scores.",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "continuous-GrYlRd"
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 15,
-        "w": 12,
-        "x": 0,
-        "y": 67
-      },
-      "id": 5,
-      "options": {
-        "displayMode": "gradient",
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": false
-        },
-        "maxVizHeight": 300,
-        "minVizHeight": 16,
-        "minVizWidth": 8,
-        "namePlacement": "auto",
-        "orientation": "horizontal",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showUnfilled": true,
-        "sizing": "auto",
-        "valueMode": "color"
-      },
-      "pluginVersion": "11.4.0",
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "adyyzm74ahla8e"
-          },
-          "disableTextWrap": false,
-          "editorMode": "builder",
-          "expr": "kafka_consumer_bps{topic=\"processed-topic\"} + kafka_consumer_resp{topic=\"processed-topic\"} + kafka_consumer_pulse{topic=\"processed-topic\"} + kafka_consumer_temp{topic=\"processed-topic\"}",
-          "fullMetaSearch": false,
-          "includeNullMetadata": true,
-          "instant": false,
-          "legendFormat": "uid {{userid}}",
-          "range": true,
-          "refId": "NEWS2",
-          "useBackend": false
-        }
-      ],
-      "title": "[All Users] NEWS2",
-      "transparent": true,
-      "type": "bargauge"
-    },
-    {
-      "datasource": {
-        "default": false,
-        "type": "prometheus",
-        "uid": "adyyzm74ahla8e"
-      },
-      "description": "Sum of physiological parameter scores.",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "continuous-GrYlRd"
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 15,
-        "w": 8,
-        "x": 12,
-        "y": 67
-      },
-      "id": 12,
-      "options": {
-        "displayMode": "gradient",
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": false
-        },
-        "maxVizHeight": 300,
-        "minVizHeight": 16,
-        "minVizWidth": 8,
-        "namePlacement": "auto",
-        "orientation": "horizontal",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showUnfilled": true,
-        "sizing": "auto",
-        "valueMode": "color"
-      },
-      "pluginVersion": "11.4.0",
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "adyyzm74ahla8e"
-          },
-          "disableTextWrap": false,
-          "editorMode": "builder",
-          "expr": "kafka_consumer_bps{topic=\"prink-topic\"} + kafka_consumer_resp{topic=\"prink-topic\"} + kafka_consumer_pulse{topic=\"prink-topic\"} + kafka_consumer_temp{topic=\"prink-topic\"}",
-          "fullMetaSearch": false,
-          "includeNullMetadata": true,
-          "instant": false,
-          "legendFormat": "uid {{userid}}",
-          "range": true,
-          "refId": "NEWS2",
-          "useBackend": false
-        }
-      ],
-      "title": "[All Users] NEWS2 ANON",
-      "transparent": true,
-      "type": "bargauge"
-    },
-    {
-      "datasource": {
-        "default": false,
-        "type": "prometheus",
-        "uid": "adyyzm74ahla8e"
-      },
-      "description": "",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "continuous-GrYlRd"
-          },
-          "fieldMinMax": false,
-          "mappings": [],
-          "max": 1,
-          "min": 0,
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 15,
-        "w": 4,
-        "x": 20,
-        "y": 67
-      },
-      "id": 14,
-      "options": {
-        "displayMode": "gradient",
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": false
-        },
-        "maxVizHeight": 300,
-        "minVizHeight": 16,
-        "minVizWidth": 8,
-        "namePlacement": "auto",
-        "orientation": "horizontal",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showUnfilled": true,
-        "sizing": "auto",
-        "valueMode": "color"
-      },
-      "pluginVersion": "11.4.0",
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "adyyzm74ahla8e"
-          },
-          "disableTextWrap": false,
-          "editorMode": "builder",
-          "expr": "kafka_consumer_infoloss{topic=\"prink-topic\"}",
-          "fullMetaSearch": false,
-          "includeNullMetadata": true,
-          "instant": false,
-          "legendFormat": "uid {{userid}}",
-          "range": true,
-          "refId": "NEWS2",
-          "useBackend": false
-        }
-      ],
-      "title": "Information Loss",
-      "transparent": true,
-      "type": "bargauge"
-    },
-    {
-      "datasource": {
-        "default": false,
-        "type": "prometheus",
-        "uid": "adyyzm74ahla8e"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "continuous-GrYlRd"
-          },
-          "mappings": [],
-          "max": 3,
-          "min": 0,
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              }
-            ]
-          },
-          "unit": "short"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 6,
-        "w": 12,
-        "x": 0,
-        "y": 82
-      },
-      "id": 35,
-      "options": {
-        "colorMode": "background",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "percentChangeColorMode": "same_as_value",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showPercentChange": false,
-        "textMode": "auto",
-        "wideLayout": true
-      },
-      "pluginVersion": "11.4.0",
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "adyyzm74ahla8e"
-          },
-          "disableTextWrap": false,
-          "editorMode": "builder",
-          "exemplar": false,
-          "expr": "kafka_consumer_bps{topic=\"processed-topic\"}",
-          "fullMetaSearch": false,
-          "hide": true,
-          "includeNullMetadata": true,
-          "instant": false,
-          "legendFormat": " ",
-          "range": true,
-          "refId": "bps",
-          "useBackend": false
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "adyyzm74ahla8e"
-          },
-          "disableTextWrap": false,
-          "editorMode": "builder",
-          "expr": "group by(waveformlabel) (kafka_consumer_pulse{topic=\"processed-topic\"})",
-          "fullMetaSearch": false,
-          "hide": false,
-          "includeNullMetadata": true,
-          "instant": false,
-          "legendFormat": " ",
-          "range": true,
-          "refId": "pulse",
-          "useBackend": false
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "adyyzm74ahla8e"
-          },
-          "disableTextWrap": false,
-          "editorMode": "builder",
-          "expr": "kafka_consumer_resp{topic=\"processed-topic\"}",
-          "fullMetaSearch": false,
-          "hide": true,
-          "includeNullMetadata": true,
-          "instant": false,
-          "legendFormat": "RESP",
-          "range": true,
-          "refId": "resp",
-          "useBackend": false
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "adyyzm74ahla8e"
-          },
-          "disableTextWrap": false,
-          "editorMode": "builder",
-          "exemplar": false,
-          "expr": "kafka_consumer_temp{topic=\"processed-topic\"}",
-          "fullMetaSearch": false,
-          "hide": true,
-          "includeNullMetadata": true,
-          "instant": false,
-          "legendFormat": "TEMP",
-          "range": true,
-          "refId": "temp",
-          "useBackend": false
-        }
-      ],
-      "title": "[All Users] PULSE",
-      "transparent": true,
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "default": false,
-        "type": "prometheus",
-        "uid": "adyyzm74ahla8e"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "continuous-GrYlRd"
-          },
-          "mappings": [],
-          "max": 3,
-          "min": 0,
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              }
-            ]
-          },
-          "unit": "short"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 6,
-        "w": 12,
-        "x": 12,
-        "y": 82
-      },
-      "id": 13,
-      "options": {
-        "colorMode": "background",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "percentChangeColorMode": "same_as_value",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showPercentChange": false,
-        "textMode": "auto",
-        "wideLayout": true
-      },
-      "pluginVersion": "11.4.0",
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "adyyzm74ahla8e"
-          },
-          "disableTextWrap": false,
-          "editorMode": "builder",
-          "exemplar": false,
-          "expr": "kafka_consumer_bps{topic=\"prink-topic\"}",
-          "fullMetaSearch": false,
-          "hide": true,
-          "includeNullMetadata": true,
-          "instant": false,
-          "legendFormat": " ",
-          "range": true,
-          "refId": "bps",
-          "useBackend": false
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "adyyzm74ahla8e"
-          },
-          "disableTextWrap": false,
-          "editorMode": "builder",
-          "expr": "group by(waveformlabel) (kafka_consumer_pulse{topic=\"prink-topic\"})",
-          "fullMetaSearch": false,
-          "hide": false,
-          "includeNullMetadata": true,
-          "instant": false,
-          "legendFormat": " ",
-          "range": true,
-          "refId": "pulse",
-          "useBackend": false
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "adyyzm74ahla8e"
-          },
-          "disableTextWrap": false,
-          "editorMode": "builder",
-          "expr": "kafka_consumer_resp{topic=\"prink-topic\"}",
-          "fullMetaSearch": false,
-          "hide": true,
-          "includeNullMetadata": true,
-          "instant": false,
-          "legendFormat": "RESP",
-          "range": true,
-          "refId": "resp",
-          "useBackend": false
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "adyyzm74ahla8e"
-          },
-          "disableTextWrap": false,
-          "editorMode": "builder",
-          "exemplar": false,
-          "expr": "kafka_consumer_temp{topic=\"prink-topic\"}",
-          "fullMetaSearch": false,
-          "hide": true,
-          "includeNullMetadata": true,
-          "instant": false,
-          "legendFormat": "TEMP",
-          "range": true,
-          "refId": "temp",
-          "useBackend": false
-        }
-      ],
-      "title": "[All Users] PULSE",
-      "transparent": true,
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "default": false,
-        "type": "prometheus",
-        "uid": "adyyzm74ahla8e"
-      },
-      "description": "Sum of physiological parameter scores for userid = 10342.",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "continuous-GrYlRd"
-          },
-          "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "barWidthFactor": 0.6,
-            "drawStyle": "line",
-            "fillOpacity": 100,
-            "gradientMode": "hue",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "insertNulls": false,
-            "lineInterpolation": "linear",
-            "lineStyle": {
-              "fill": "solid"
-            },
-            "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "auto",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "mappings": [],
-          "max": 12,
-          "min": 0,
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 0,
-        "y": 88
-      },
-      "id": 2,
-      "options": {
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": true
-        },
-        "tooltip": {
-          "mode": "single",
-          "sort": "none"
-        }
-      },
-      "pluginVersion": "11.4.0",
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "adyyzm74ahla8e"
-          },
-          "disableTextWrap": false,
-          "editorMode": "code",
-          "expr": "kafka_consumer_bps{userid=\"10342\", topic=\"processed-topic\"} + kafka_consumer_pulse{userid=\"10342\", topic=\"processed-topic\"} + kafka_consumer_resp{userid=\"10342\", topic=\"processed-topic\"} + kafka_consumer_temp{userid=\"10342\", topic=\"processed-topic\"}",
-          "fullMetaSearch": false,
-          "includeNullMetadata": true,
-          "instant": false,
-          "legendFormat": " ",
-          "range": true,
-          "refId": "NEWS2",
-          "useBackend": false
-        }
-      ],
-      "title": "User 10342: NEWS2",
-      "transparent": true,
-      "type": "timeseries"
-    },
-    {
-      "datasource": {
-        "default": false,
-        "type": "prometheus",
-        "uid": "adyyzm74ahla8e"
-      },
-      "description": "Sum of physiological parameter scores for userid = 10342.",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "continuous-GrYlRd"
-          },
-          "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "barWidthFactor": 0.6,
-            "drawStyle": "line",
-            "fillOpacity": 100,
-            "gradientMode": "scheme",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "insertNulls": false,
-            "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "auto",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "mappings": [],
-          "max": 12,
-          "min": 0,
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 12,
-        "y": 88
-      },
-      "id": 8,
-      "options": {
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": true
-        },
-        "tooltip": {
-          "mode": "single",
-          "sort": "none"
-        }
-      },
-      "pluginVersion": "11.4.0",
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "adyyzm74ahla8e"
-          },
-          "disableTextWrap": false,
-          "editorMode": "builder",
-          "expr": "kafka_consumer_bps{userid=\"10342\", topic=\"prink-topic\"} + kafka_consumer_pulse{userid=\"10342\", topic=\"prink-topic\"} + kafka_consumer_resp{userid=\"10342\", topic=\"prink-topic\"} + kafka_consumer_temp{userid=\"10342\", topic=\"prink-topic\"}",
-          "fullMetaSearch": false,
-          "includeNullMetadata": true,
-          "instant": false,
-          "legendFormat": " ",
-          "range": true,
-          "refId": "NEWS2",
-          "useBackend": false
-        }
-      ],
-      "title": "User 10342: NEWS2 ANON",
-      "transparent": true,
-      "type": "timeseries"
-    },
-    {
-      "datasource": {
-        "default": false,
-        "type": "prometheus",
-        "uid": "adyyzm74ahla8e"
-      },
-      "description": "userid = 10342",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "fieldMinMax": false,
-          "mappings": [],
-          "max": 3,
-          "min": 0,
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "#6ED0E0",
-                "value": 0
-              },
-              {
-                "color": "#EAB839",
-                "value": 1
-              },
-              {
-                "color": "#EF843C",
-                "value": 2
-              },
-              {
-                "color": "red",
-                "value": 3
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 5,
-        "w": 12,
-        "x": 0,
-        "y": 96
-      },
-      "id": 1,
-      "options": {
-        "displayMode": "basic",
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": false
-        },
-        "maxVizHeight": 300,
-        "minVizHeight": 16,
-        "minVizWidth": 8,
-        "namePlacement": "auto",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showUnfilled": true,
-        "sizing": "auto",
-        "text": {},
-        "valueMode": "color"
-      },
-      "pluginVersion": "11.4.0",
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "adyyzm74ahla8e"
-          },
-          "disableTextWrap": false,
-          "editorMode": "builder",
-          "exemplar": false,
-          "expr": "kafka_consumer_bps{topic=\"processed-topic\", userid=\"10342\"}",
-          "fullMetaSearch": false,
-          "includeNullMetadata": true,
-          "instant": false,
-          "legendFormat": "systolic blood pressure",
-          "range": true,
-          "refId": "bps",
-          "useBackend": false
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "adyyzm74ahla8e"
-          },
-          "disableTextWrap": false,
-          "editorMode": "builder",
-          "expr": "kafka_consumer_pulse{topic=\"processed-topic\", userid=\"10342\"}",
-          "fullMetaSearch": false,
-          "hide": false,
-          "includeNullMetadata": true,
-          "instant": false,
-          "legendFormat": "pulse",
-          "range": true,
-          "refId": "pulse",
-          "useBackend": false
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "adyyzm74ahla8e"
-          },
-          "disableTextWrap": false,
-          "editorMode": "builder",
-          "expr": "kafka_consumer_resp{topic=\"processed-topic\", userid=\"10342\"}",
-          "fullMetaSearch": false,
-          "hide": false,
-          "includeNullMetadata": true,
-          "instant": false,
-          "legendFormat": "respiration rate",
-          "range": true,
-          "refId": "resp",
-          "useBackend": false
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "adyyzm74ahla8e"
-          },
-          "disableTextWrap": false,
-          "editorMode": "builder",
-          "expr": "kafka_consumer_temp{topic=\"processed-topic\", userid=\"10342\"}",
-          "fullMetaSearch": false,
-          "hide": false,
-          "includeNullMetadata": true,
-          "instant": false,
-          "legendFormat": "temperature",
-          "range": true,
-          "refId": "temp",
-          "useBackend": false
-        }
-      ],
-      "title": "User 10342: Physiological Parameters ",
-      "transparent": true,
-      "type": "bargauge"
-    },
-    {
-      "datasource": {
-        "default": false,
-        "type": "prometheus",
-        "uid": "adyyzm74ahla8e"
-      },
-      "description": "userid = 10342",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "fieldMinMax": false,
-          "mappings": [],
-          "max": 3,
-          "min": 0,
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "#6ED0E0",
-                "value": 0
-              },
-              {
-                "color": "#EAB839",
-                "value": 1
-              },
-              {
-                "color": "#EF843C",
-                "value": 2
-              },
-              {
-                "color": "red",
-                "value": 3
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 5,
-        "w": 12,
-        "x": 12,
-        "y": 96
-      },
-      "id": 9,
-      "options": {
-        "displayMode": "basic",
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": false
-        },
-        "maxVizHeight": 300,
-        "minVizHeight": 16,
-        "minVizWidth": 8,
-        "namePlacement": "auto",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showUnfilled": true,
-        "sizing": "auto",
-        "text": {},
-        "valueMode": "color"
-      },
-      "pluginVersion": "11.4.0",
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "adyyzm74ahla8e"
-          },
-          "disableTextWrap": false,
-          "editorMode": "builder",
-          "exemplar": false,
-          "expr": "kafka_consumer_bps{userid=\"10342\", topic=\"prink-topic\"}",
-          "fullMetaSearch": false,
-          "includeNullMetadata": true,
-          "instant": false,
-          "legendFormat": "systolic blood pressure",
-          "range": true,
-          "refId": "bps",
-          "useBackend": false
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "adyyzm74ahla8e"
-          },
-          "disableTextWrap": false,
-          "editorMode": "builder",
-          "expr": "kafka_consumer_pulse{userid=\"10342\", topic=\"prink-topic\"}",
-          "fullMetaSearch": false,
-          "hide": false,
-          "includeNullMetadata": true,
-          "instant": false,
-          "legendFormat": "pulse",
-          "range": true,
-          "refId": "pulse",
-          "useBackend": false
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "adyyzm74ahla8e"
-          },
-          "disableTextWrap": false,
-          "editorMode": "builder",
-          "expr": "kafka_consumer_resp{userid=\"10342\", topic=\"prink-topic\"}",
-          "fullMetaSearch": false,
-          "hide": false,
-          "includeNullMetadata": true,
-          "instant": false,
-          "legendFormat": "respiration rate",
-          "range": true,
-          "refId": "resp",
-          "useBackend": false
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "adyyzm74ahla8e"
-          },
-          "disableTextWrap": false,
-          "editorMode": "builder",
-          "expr": "kafka_consumer_temp{userid=\"10342\", topic=\"prink-topic\"}",
-          "fullMetaSearch": false,
-          "hide": false,
-          "includeNullMetadata": true,
-          "instant": false,
-          "legendFormat": "temperature",
-          "range": true,
-          "refId": "temp",
-          "useBackend": false
-        }
-      ],
-      "title": "User 10342: Physiological Parameters ANON",
-      "transparent": true,
-      "type": "bargauge"
     }
   ],
   "preload": false,
@@ -3156,6 +3037,6 @@
   "timezone": "browser",
   "title": "NEWS2 Dashboard",
   "uid": "fe0tv8jblo4xsc",
-  "version": 77,
+  "version": 78,
   "weekStart": ""
 }
