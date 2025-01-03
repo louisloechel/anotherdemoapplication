@@ -106,6 +106,12 @@ def generate_synthetic_data_for_user(user, num_timestamps=100, interval_minutes=
             "escalation": generate_escalation(),
             "waveformlabel": generate_waveform_label()
         }
+
+        # randomly invalidate single datapoints: 5% chance for username to be "Unknown"
+        if random.random() < 0.05:
+            entry["username"] = "Unknown"
+            entry["userinitials"] = "XX"
+
         user_data.append(entry)
     
     return user_data
