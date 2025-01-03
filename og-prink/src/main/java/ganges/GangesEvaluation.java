@@ -145,7 +145,23 @@ public class GangesEvaluation {
         BPS(new AggregationIntegerGeneralizer(Tuple2.of(0, 3)), true),
         PULSE(new AggregationIntegerGeneralizer(Tuple2.of(0, 3)), true),
         TEMP(new AggregationIntegerGeneralizer(Tuple2.of(0, 3)), true),
-        WAVEFORM(new NoneGeneralizer(), false)
+        // WAVEFORM(new NoneGeneralizer(), false),
+        WAVEFORM(new NonNumericalGeneralizer(new String[][]{
+            {"Other", "Pleth"},
+            {"ECG-Leads", "Standard-Limb-Leads", "I"},
+            {"ECG-Leads", "Standard-Limb-Leads", "II"},
+            {"ECG-Leads", "Standard-Limb-Leads", "III"},
+            {"ECG-Leads", "Augmented-Limb-Leads", "aVR"},
+            {"ECG-Leads", "Augmented-Limb-Leads", "aVL"},
+            {"ECG-Leads", "Augmented-Limb-Leads", "aVF"},
+            {"ECG-Leads", "Chest-Leads", "V1"},
+            {"ECG-Leads", "Chest-Leads", "V2"},
+            {"ECG-Leads", "Chest-Leads", "V3"},
+            {"ECG-Leads", "Chest-Leads", "V4"},
+            {"ECG-Leads", "Chest-Leads", "V5"},
+            {"ECG-Leads", "Chest-Leads", "V6"},
+            {"Other", ""}
+        }), false),
        ;
 
         private final BaseGeneralizer generalizer;
