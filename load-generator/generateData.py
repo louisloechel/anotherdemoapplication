@@ -49,7 +49,7 @@ def generate_escalation():
     return random.choice(["Yes", "No"])
 
 def generate_waveform_label():
-    return random.choice(["", "I", "II", "III", "aVR", "awV", "Pleth", "aVF", "V1", "V2", "V3", "V4", "V5", "V6"]) # waveform labels found in example dataset 
+    return random.choice(["", "I", "II", "III", "aVR", "aVL", "aVF", "Pleth", "V1", "V2", "V3", "V4", "V5", "V6"]) # waveform labels found in example dataset 
 
 # Generate unique users with consistent userids
 def generate_users(num_users=10):
