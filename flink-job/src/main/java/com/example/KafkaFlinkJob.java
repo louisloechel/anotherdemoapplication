@@ -144,10 +144,14 @@ public class KafkaFlinkJob {
                 outputJson.put("recordid", recordid);
                 outputJson.put("userid", userid);
                 outputJson.put("username", username);
-                outputJson.put("resp", newsRespScore);
-                outputJson.put("bps", newsBpsScore);
-                outputJson.put("pulse", newsPulseScore);
-                outputJson.put("temp", newsTempScore);
+                outputJson.put("resp", resp);
+                outputJson.put("respNEWS", newsRespScore);
+                outputJson.put("bps", bps);
+                outputJson.put("bpsNEWS", newsBpsScore);
+                outputJson.put("pulse", pulse);
+                outputJson.put("pulseNEWS", newsPulseScore);
+                outputJson.put("temp", temp);
+                outputJson.put("tempNEWS", newsTempScore);
                 outputJson.put("waveformlabel", waveformlabel);
 
                 // Collect the JSON string

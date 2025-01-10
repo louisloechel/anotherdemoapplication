@@ -3,9 +3,15 @@ from prometheus_client import start_http_server, Counter, Gauge # type: ignore
 import json
 import os
 import time
+import numpy as np
+from sklearn.linear_model import LinearRegression
 
 # Prometheus counter for tracking the number of messages
 MESSAGE_COUNTER = Counter('kafka_consumer_messages_total', 'Total number of messages consumed')
+PREDICTED_PULSE_GAUGE = Gauge('kafka_consumer_predicted_pulse', 'Predicted next pulse', ['userid', 'topic', 'waveformlabel'])
+PREDICTED_BPS_GAUGE = Gauge('kafka_consumer_predicted_bps', 'Predicted next BPS', ['userid', 'topic', 'waveformlabel'])
+PREDICTED_SHOCK_GAUGE = Gauge('kafka_consumer_predicted_shock', 'Predicted next shock index', ['userid', 'topic', 'waveformlabel'])
+SHOCK_GAUGE = Gauge('kafka_consumer_shock', 'Shock index', ['userid', 'topic', 'waveformlabel'])
 
 # Define Kafka consumer configuration
 conf = {
@@ -27,6 +33,15 @@ consumer.subscribe(topics)
 
 # Prometheus metrics
 gauges = {}
+
+# Sliding window of historical data
+pulse_history = []
+bps_history = []
+window_size = 10  # Number of recent values to use for predictions
+
+# Linear regression models
+pulse_model = LinearRegression()
+bps_model = LinearRegression()
 
 # Wait for the topic to be available
 sleeptime = 10
@@ -66,8 +81,9 @@ def consume_messages():
                 if 'userid' in message:
                     userid = message['userid']
                     waveformlabel = message['waveformlabel']
+                    topic = msg.topic()
+                    
                     for key, value in message.items():
-                        topic = msg.topic()
                         # Check if the gauge for this key exists with a 'userid' label
                         if key not in gauges:
                             # Define the gauge with 'userid' as a label
@@ -83,7 +99,21 @@ def consume_messages():
                                 value = value[1:-1]
                                 value_avg = (float(value.split(',')[0]) + float(value.split(',')[1])) / 2
                                 value = round(value_avg, 0)
-                        
+
+                                # Prediction Use Case
+                                # set pulse and bps gauges
+                                if key == 'pulse':
+                                    pulse = value
+                                    pulse_history.append(pulse)
+                                    if len(pulse_history) > window_size:
+                                        pulse_history.pop(0)
+
+                                if key == 'bps':
+                                    bps = value
+                                    bps_history.append(bps)
+                                    if len(bps_history) > window_size:
+                                        bps_history.pop(0)
+
                         # Convert the value to a numeric type if needed, e.g., int or float
                         try:
                             value = float(value)
@@ -109,6 +139,43 @@ def consume_messages():
                         gauges['correct_bed_registration'].labels(userid=userid, topic=topic).set(1)
                     else:
                         gauges['correct_bed_registration'].labels(userid=userid, topic=topic).set(0)
+
+                    ## Prediction use case
+                    # initalize next_pulse and next_bps
+                    next_pulse = None
+                    next_bps = None
+
+                    # Expose Shock Index Gauge
+                    if 'pulse' in message and 'bps' in message:
+                        pulse = pulse_history[-1] if len(pulse_history) > 0 else 0
+                        bps = bps_history[-1] if len(bps_history) > 0 else 0
+                        shock_index = pulse / bps if bps != 0 else 0
+                        SHOCK_GAUGE.labels(userid=userid, topic=topic, waveformlabel=waveformlabel).set(shock_index)
+                        print(f"Shock Index: {shock_index}")
+
+                    # Predict next values
+                    if len(pulse_history) > 1:
+                        X_pulse = np.arange(len(pulse_history)).reshape(-1, 1)  # Time indices
+                        y_pulse = np.array(pulse_history)
+                        pulse_model.fit(X_pulse, y_pulse)
+                        next_pulse = pulse_model.predict([[len(pulse_history)]])[0]
+                        PREDICTED_PULSE_GAUGE.labels(userid=userid, topic=topic, waveformlabel=waveformlabel).set(next_pulse)
+                        print(f"Predicted Pulse: {next_pulse}")
+
+                    if len(bps_history) > 1:
+                        X_bps = np.arange(len(bps_history)).reshape(-1, 1)  # Time indices
+                        y_bps = np.array(bps_history)
+                        bps_model.fit(X_bps, y_bps)
+                        next_bps = bps_model.predict([[len(bps_history)]])[0]
+                        PREDICTED_BPS_GAUGE.labels(userid=userid, topic=topic, waveformlabel=waveformlabel).set(next_bps)
+                        print(f"Predicted BPS: {next_bps}")
+                    
+                    # Predict next shock index
+                    # Shock index = pulse/bps
+                    if next_pulse is not None and next_bps is not None:
+                        next_shock_index = next_pulse / next_bps if next_bps != 0 else 0
+                        PREDICTED_SHOCK_GAUGE.labels(userid=userid, topic=topic, waveformlabel=waveformlabel).set(next_shock_index)
+                        print(f"Predicted Shock Index: {next_shock_index}")
 
                 MESSAGE_COUNTER.inc()  # Increment the Prometheus counter for each message consumed
     except KeyboardInterrupt:

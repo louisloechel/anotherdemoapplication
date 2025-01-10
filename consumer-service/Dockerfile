@@ -8,7 +8,8 @@ WORKDIR /app
 COPY . /app
 
 # Install any necessary Python dependencies
-RUN pip install confluent_kafka prometheus_client
+COPY requirements.txt /app/
+RUN pip install -r requirements.txt
 ENV PYTHONUNBUFFERED=1
 
 # Run the consumer when the container launches

@@ -1,1 +1,4 @@
-kafka-python==2.0.2
+confluent-kafka==1.9.2
+prometheus-client==0.16.0
+numpy==1.24.2
+scikit-learn==1.2.2
