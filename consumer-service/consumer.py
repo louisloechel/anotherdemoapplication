@@ -4,7 +4,7 @@ import json
 import os
 import time
 import numpy as np
-from sklearn.linear_model import LinearRegression
+from statsmodels.tsa.holtwinters import SimpleExpSmoothing
 from collections import defaultdict
 
 # Prometheus counter for tracking the number of messages
@@ -55,32 +55,24 @@ TRAINING_THRESHOLD = 15
 WINDOW_SIZE = 3
 
 def train_model(data):
-    # Trains a linear regression model on the provided data.
-    # if len(data) > WINDOW_SIZE:
-    #     data = data[-WINDOW_SIZE:]
-
-    X = np.arange(len(data)).reshape(-1, 1)
-    y = np.array(data)
-    
-    model = LinearRegression()
-    model.fit(X, y)
-    return model
-
-def fit_model(model, data):
-    # Fits an existing linear regression model on the provided data.
+    # Trains an Exponential Smoothing model on the provided data.
     if len(data) > WINDOW_SIZE:
         data = data[-WINDOW_SIZE:]
 
-    X = np.arange(len(data)).reshape(-1, 1)
-    y = np.array(data)
-    
-    model.fit(X, y)
+    model = SimpleExpSmoothing(data).fit()
     return model
 
-def predict_next_value(model, history_length):
+def fit_model(model, data):
+    # Fits an existing Exponential Smoothing model on the provided data.
+    if len(data) > WINDOW_SIZE:
+        data = data[-WINDOW_SIZE:]
+
+    model = SimpleExpSmoothing(data).fit()
+    return model
+
+def predict_next_value(model):
     # Predict the next value using the trained model.
-    X_new = np.array([[history_length]])
-    y_pred = model.predict(X_new)[0]
+    y_pred = model.forecast(1)[0]
     return y_pred
 
 def train_and_predict(message, topic):
@@ -126,7 +118,7 @@ def train_and_predict(message, topic):
                 pulse_model = fit_model(pulse_model, all_pulse_data)
             else:
                 pulse_model = train_model(all_pulse_data)
-            predicted_pulse = predict_next_value(pulse_model, len(all_pulse_data))
+            predicted_pulse = predict_next_value(pulse_model)
             PREDICTED_PULSE_GAUGE.labels(userid=userid, topic=topic, waveformlabel=waveformlabel).set(predicted_pulse)
             print(f"Patient {userid} - Predicted Pulse: {predicted_pulse}")
 
@@ -137,7 +129,7 @@ def train_and_predict(message, topic):
                 bps_model = fit_model(bps_model, all_bps_data)
             else:
                 bps_model = train_model(all_bps_data)
-            predicted_bps = predict_next_value(bps_model, len(all_bps_data))
+            predicted_bps = predict_next_value(bps_model)
             PREDICTED_BPS_GAUGE.labels(userid=userid, topic=topic, waveformlabel=waveformlabel).set(predicted_bps)
             print(f"Patient {userid} - Predicted BPS: {predicted_bps}")
 
