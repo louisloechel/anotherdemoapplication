@@ -4,7 +4,8 @@ import json
 import os
 import time
 import numpy as np
-from sklearn.linear_model import LinearRegression
+from statsmodels.tsa.holtwinters import SimpleExpSmoothing
+from collections import defaultdict
 
 # Prometheus counter for tracking the number of messages
 MESSAGE_COUNTER = Counter('kafka_consumer_messages_total', 'Total number of messages consumed')
@@ -34,22 +35,133 @@ consumer.subscribe(topics)
 # Prometheus metrics
 gauges = {}
 
-# Sliding window of historical data
-pulse_history = []
-bps_history = []
-window_size = 10  # Number of recent values to use for predictions
+#-----------------------------------------
+#
+#       begin Prediction Use Case
 
-# Linear regression models
-pulse_model = LinearRegression()
-bps_model = LinearRegression()
+# Historical data for prediction
+pulse_history = defaultdict(list)
+pulse_history_prink = defaultdict(list)
+bps_history = defaultdict(list)
+bps_history_prink = defaultdict(list)
+
+# Single models for all patients
+pulse_model = None
+bps_model = None
+
+# Threshold to start training models (minimum data points)
+TRAINING_THRESHOLD = 15
+# Window size for training models
+WINDOW_SIZE = 3
+
+def train_model(data):
+    # Trains an Exponential Smoothing model on the provided data.
+    if len(data) > WINDOW_SIZE:
+        data = data[-WINDOW_SIZE:]
+
+    model = SimpleExpSmoothing(data).fit()
+    return model
+
+def fit_model(model, data):
+    # Fits an existing Exponential Smoothing model on the provided data.
+    if len(data) > WINDOW_SIZE:
+        data = data[-WINDOW_SIZE:]
+
+    model = SimpleExpSmoothing(data).fit()
+    return model
+
+def predict_next_value(model):
+    # Predict the next value using the trained model.
+    y_pred = model.forecast(1)[0]
+    return y_pred
+
+def train_and_predict(message, topic):
+    # Processes each incoming message.
+    print(f"Processing message: {message}")
+    global pulse_history, bps_history, pulse_history_prink, bps_history_prink, pulse_model, bps_model
+
+    # Parse the message
+    try:
+        pulse = message['pulse']
+        bps = message['bps']
+        userid = message['userid']
+        waveformlabel = message['waveformlabel']
+
+        # Determine the correct histories based on the topic
+        if topic == 'prink-topic':
+            pulse = process_value(pulse)
+            bps = process_value(bps)
+            current_pulse_history = pulse_history_prink
+            current_bps_history = bps_history_prink
+        else:
+            current_pulse_history = pulse_history
+            current_bps_history = bps_history
+
+        # Update histories
+        if pulse is not None:
+            current_pulse_history[userid].append(int(pulse))
+        if bps is not None:
+            current_bps_history[userid].append(int(bps))
+
+        # Update Shock Index Gauge
+        shock_index = int(pulse) / int(bps) if int(bps) != 0 else 0
+        SHOCK_GAUGE.labels(userid=userid, topic=topic, waveformlabel=waveformlabel).set(shock_index)
+        print(f"Patient {userid} - Shock Index: {shock_index}")
+
+        predicted_pulse = None
+        predicted_bps = None
+
+        # Train or fit pulse model if data is sufficient
+        all_pulse_data = [pulse for history in current_pulse_history.values() for pulse in history]
+        if len(all_pulse_data) >= TRAINING_THRESHOLD:
+            if pulse_model:
+                pulse_model = fit_model(pulse_model, all_pulse_data)
+            else:
+                pulse_model = train_model(all_pulse_data)
+            predicted_pulse = predict_next_value(pulse_model)
+            PREDICTED_PULSE_GAUGE.labels(userid=userid, topic=topic, waveformlabel=waveformlabel).set(predicted_pulse)
+            print(f"Patient {userid} - Predicted Pulse: {predicted_pulse}")
+
+        # Train or fit BPS model if data is sufficient
+        all_bps_data = [bps for history in current_bps_history.values() for bps in history]
+        if len(all_bps_data) >= TRAINING_THRESHOLD:
+            if bps_model:
+                bps_model = fit_model(bps_model, all_bps_data)
+            else:
+                bps_model = train_model(all_bps_data)
+            predicted_bps = predict_next_value(bps_model)
+            PREDICTED_BPS_GAUGE.labels(userid=userid, topic=topic, waveformlabel=waveformlabel).set(predicted_bps)
+            print(f"Patient {userid} - Predicted BPS: {predicted_bps}")
+
+        # Predict shock index
+        if predicted_pulse is not None and predicted_bps is not None:
+            shock_index = predicted_pulse / predicted_bps if predicted_bps != 0 else 0
+            PREDICTED_SHOCK_GAUGE.labels(userid=userid, topic=topic, waveformlabel=waveformlabel).set(shock_index)
+            print(f"Patient {userid} - Predicted Shock Index: {shock_index}")
+
+    except Exception as e:
+        print(f"Error processing message: {e}")
+
+#       end Prediction Use Case
+#
+#-----------------------------------------
+
+def process_value(value):
+    # if value is empty string, skip
+    if value == '':
+        return None
+    elif value[0] == '(':
+        # value is tuple, (123,456), rm '()', split by ',' and calculate rounded avg
+        value = value[1:-1]
+        value_avg = (float(value.split(',')[0]) + float(value.split(',')[1])) / 2
+        value = round(value_avg, 0)
+    return value
 
 # Wait for the topic to be available
 sleeptime = 10
 print(f"Waiting {sleeptime}s for Kafka topics {topics} to be available...", flush=True)
 time.sleep(sleeptime)
 print("Starting consumer...", flush=True)
-
-
 
 def consume_messages():
     print(f"Subscribing to Kafka topics: {topics}", flush=True)
@@ -90,29 +202,10 @@ def consume_messages():
                             gauges[key] = Gauge(f'kafka_consumer_{key}', f'Kafka consumer {key} value', ['userid', 'topic', 'waveformlabel'])
                         
                         # Process the value, e.g., if it’s a tuple in string format "(123,456)"
-                        if topic == 'prink-topic':
-                            # if value is empty string, skip
-                            if value == '':
-                                continue
-                            elif value[0] == '(':
-                                # value is tuple, (123,456), rm (), split by , and take first element
-                                value = value[1:-1]
-                                value_avg = (float(value.split(',')[0]) + float(value.split(',')[1])) / 2
-                                value = round(value_avg, 0)
-
-                                # Prediction Use Case
-                                # set pulse and bps gauges
-                                if key == 'pulse':
-                                    pulse = value
-                                    pulse_history.append(pulse)
-                                    if len(pulse_history) > window_size:
-                                        pulse_history.pop(0)
-
-                                if key == 'bps':
-                                    bps = value
-                                    bps_history.append(bps)
-                                    if len(bps_history) > window_size:
-                                        bps_history.pop(0)
+                        if topic == 'prink-topic':# Use the function to process the value
+                            processed_value = process_value(value)
+                            if processed_value is not None:
+                                value = processed_value
 
                         # Convert the value to a numeric type if needed, e.g., int or float
                         try:
@@ -141,41 +234,19 @@ def consume_messages():
                         gauges['correct_bed_registration'].labels(userid=userid, topic=topic).set(0)
 
                     ## Prediction use case
-                    # initalize next_pulse and next_bps
-                    next_pulse = None
-                    next_bps = None
-
                     # Expose Shock Index Gauge
                     if 'pulse' in message and 'bps' in message:
-                        pulse = pulse_history[-1] if len(pulse_history) > 0 else 0
-                        bps = bps_history[-1] if len(bps_history) > 0 else 0
-                        shock_index = pulse / bps if bps != 0 else 0
+                        pulse = message['pulse']
+                        bps = message['bps']
+                        if topic == 'prink-topic':
+                            pulse = process_value(pulse)
+                            bps = process_value(bps)
+                        shock_index = int(pulse) / int(bps) if int(bps) != 0 else 0
                         SHOCK_GAUGE.labels(userid=userid, topic=topic, waveformlabel=waveformlabel).set(shock_index)
-                        print(f"Shock Index: {shock_index}")
+                        print(f"Patient {userid} - Shock Index: {shock_index}")
 
                     # Predict next values
-                    if len(pulse_history) > 1:
-                        X_pulse = np.arange(len(pulse_history)).reshape(-1, 1)  # Time indices
-                        y_pulse = np.array(pulse_history)
-                        pulse_model.fit(X_pulse, y_pulse)
-                        next_pulse = pulse_model.predict([[len(pulse_history)]])[0]
-                        PREDICTED_PULSE_GAUGE.labels(userid=userid, topic=topic, waveformlabel=waveformlabel).set(next_pulse)
-                        print(f"Predicted Pulse: {next_pulse}")
-
-                    if len(bps_history) > 1:
-                        X_bps = np.arange(len(bps_history)).reshape(-1, 1)  # Time indices
-                        y_bps = np.array(bps_history)
-                        bps_model.fit(X_bps, y_bps)
-                        next_bps = bps_model.predict([[len(bps_history)]])[0]
-                        PREDICTED_BPS_GAUGE.labels(userid=userid, topic=topic, waveformlabel=waveformlabel).set(next_bps)
-                        print(f"Predicted BPS: {next_bps}")
-                    
-                    # Predict next shock index
-                    # Shock index = pulse/bps
-                    if next_pulse is not None and next_bps is not None:
-                        next_shock_index = next_pulse / next_bps if next_bps != 0 else 0
-                        PREDICTED_SHOCK_GAUGE.labels(userid=userid, topic=topic, waveformlabel=waveformlabel).set(next_shock_index)
-                        print(f"Predicted Shock Index: {next_shock_index}")
+                    train_and_predict(message, topic)
 
                 MESSAGE_COUNTER.inc()  # Increment the Prometheus counter for each message consumed
     except KeyboardInterrupt:
