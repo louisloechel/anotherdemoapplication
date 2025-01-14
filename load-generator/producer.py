@@ -5,7 +5,7 @@ import json
 import traceback
 import os
 
-SLEEP_TIME = 5
+SLEEP_TIME = 5  # previously 1
 
 def main():
     folder = 'output_json_files/'
