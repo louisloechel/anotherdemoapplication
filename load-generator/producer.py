@@ -5,6 +5,8 @@ import json
 import traceback
 import os
 
+SLEEP_TIME = 5
+
 def main():
     folder = 'output_json_files/'
     files = [f for f in os.listdir(folder) if f.endswith('.json')]
@@ -69,7 +71,7 @@ def main():
                     except KafkaError as e:
                         print(f'{time.strftime("%Y-%m-%d %H:%M:%S")} Failed to send message: {e}', flush=True)
                 message_count += 1
-                time.sleep(1)
+                time.sleep(SLEEP_TIME)
         except NoBrokersAvailable:
             print(f'{time.strftime("%Y-%m-%d %H:%M:%S")} No brokers available. Retrying...', flush=True)
             retries -= 1

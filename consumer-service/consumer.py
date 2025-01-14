@@ -41,47 +41,52 @@ gauges = {}
 
 # Historical data for prediction
 pulse_history = defaultdict(list)
+pulse_history_prink = defaultdict(list)
 bps_history = defaultdict(list)
+bps_history_prink = defaultdict(list)
 
-# Models for each patient
-pulse_models = {}
-bps_models = {}
+# Single models for all patients
+pulse_model = None
+bps_model = None
 
 # Threshold to start training models (minimum data points)
-TRAINING_THRESHOLD = 10
+TRAINING_THRESHOLD = 15
 # Window size for training models
-# WINDOW_SIZE = 100
+WINDOW_SIZE = 3
 
 def train_model(data):
-    # Trains a new linear regression model on the provided data.
+    # Trains a linear regression model on the provided data.
     # if len(data) > WINDOW_SIZE:
     #     data = data[-WINDOW_SIZE:]
 
     X = np.arange(len(data)).reshape(-1, 1)
     y = np.array(data)
+    
     model = LinearRegression()
     model.fit(X, y)
     return model
 
 def fit_model(model, data):
     # Fits an existing linear regression model on the provided data.
-    # if len(data) > WINDOW_SIZE:
-    #     data = data[-WINDOW_SIZE:]
+    if len(data) > WINDOW_SIZE:
+        data = data[-WINDOW_SIZE:]
 
     X = np.arange(len(data)).reshape(-1, 1)
     y = np.array(data)
+    
     model.fit(X, y)
     return model
 
 def predict_next_value(model, history_length):
     # Predict the next value using the trained model.
-
-    return model.predict(np.array([[history_length]]))[0]
+    X_new = np.array([[history_length]])
+    y_pred = model.predict(X_new)[0]
+    return y_pred
 
 def train_and_predict(message, topic):
     # Processes each incoming message.
     print(f"Processing message: {message}")
-    global pulse_history, bps_history, pulse_models, bps_models
+    global pulse_history, bps_history, pulse_history_prink, bps_history_prink, pulse_model, bps_model
 
     # Parse the message
     try:
@@ -90,16 +95,21 @@ def train_and_predict(message, topic):
         userid = message['userid']
         waveformlabel = message['waveformlabel']
 
-        # Handle Prink's specific Tuple format
+        # Determine the correct histories based on the topic
         if topic == 'prink-topic':
             pulse = process_value(pulse)
             bps = process_value(bps)
+            current_pulse_history = pulse_history_prink
+            current_bps_history = bps_history_prink
+        else:
+            current_pulse_history = pulse_history
+            current_bps_history = bps_history
 
         # Update histories
         if pulse is not None:
-            pulse_history[userid].append(int(pulse))
+            current_pulse_history[userid].append(int(pulse))
         if bps is not None:
-            bps_history[userid].append(int(bps))
+            current_bps_history[userid].append(int(bps))
 
         # Update Shock Index Gauge
         shock_index = int(pulse) / int(bps) if int(bps) != 0 else 0
@@ -110,22 +120,24 @@ def train_and_predict(message, topic):
         predicted_bps = None
 
         # Train or fit pulse model if data is sufficient
-        if len(pulse_history[userid]) >= TRAINING_THRESHOLD:
-            if userid in pulse_models:
-                pulse_models[userid] = fit_model(pulse_models[userid], pulse_history[userid])
+        all_pulse_data = [pulse for history in current_pulse_history.values() for pulse in history]
+        if len(all_pulse_data) >= TRAINING_THRESHOLD:
+            if pulse_model:
+                pulse_model = fit_model(pulse_model, all_pulse_data)
             else:
-                pulse_models[userid] = train_model(pulse_history[userid])
-            predicted_pulse = predict_next_value(pulse_models[userid], len(pulse_history[userid]))
+                pulse_model = train_model(all_pulse_data)
+            predicted_pulse = predict_next_value(pulse_model, len(all_pulse_data))
             PREDICTED_PULSE_GAUGE.labels(userid=userid, topic=topic, waveformlabel=waveformlabel).set(predicted_pulse)
             print(f"Patient {userid} - Predicted Pulse: {predicted_pulse}")
 
         # Train or fit BPS model if data is sufficient
-        if len(bps_history[userid]) >= TRAINING_THRESHOLD:
-            if userid in bps_models:
-                bps_models[userid] = fit_model(bps_models[userid], bps_history[userid])
+        all_bps_data = [bps for history in current_bps_history.values() for bps in history]
+        if len(all_bps_data) >= TRAINING_THRESHOLD:
+            if bps_model:
+                bps_model = fit_model(bps_model, all_bps_data)
             else:
-                bps_models[userid] = train_model(bps_history[userid])
-            predicted_bps = predict_next_value(bps_models[userid], len(bps_history[userid]))
+                bps_model = train_model(all_bps_data)
+            predicted_bps = predict_next_value(bps_model, len(all_bps_data))
             PREDICTED_BPS_GAUGE.labels(userid=userid, topic=topic, waveformlabel=waveformlabel).set(predicted_bps)
             print(f"Patient {userid} - Predicted BPS: {predicted_bps}")
 
