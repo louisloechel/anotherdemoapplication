@@ -5,7 +5,7 @@ COPY src ./src
 # Build the application using Maven
 RUN mvn clean package -DskipTests
 
-FROM flink
+FROM flink:1.19
 
 COPY --from=build /app/target/prink-*.jar /opt/flink/usrlib/artifacts/1/
 
