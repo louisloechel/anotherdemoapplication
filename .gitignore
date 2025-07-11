@@ -1,3 +1,6 @@
 
 grafana/grafana.db
 .vscode/settings.json
+.DS_Store
+*.xml
+grafana/plugins/*

@@ -47,7 +47,7 @@ public class KafkaFlinkJob {
                 int bps = jsonNode.get("bps").asInt();
                 int pulse = jsonNode.get("pulse").asInt();
                 double temp = jsonNode.get("temp").asDouble();
-                String waveformlabel = jsonNode.get("waveformlabel").asText();
+                String icd10 = jsonNode.get("icd10").asText();
 
                 // Log the received message
                 LOG.info("[flink-job] Received message: {}", jsonNode);
@@ -152,7 +152,7 @@ public class KafkaFlinkJob {
                 outputJson.put("pulseNEWS", newsPulseScore);
                 outputJson.put("temp", temp);
                 outputJson.put("tempNEWS", newsTempScore);
-                outputJson.put("waveformlabel", waveformlabel);
+                outputJson.put("icd10", icd10);
 
                 // Collect the JSON string
                 out.collect(outputJson.toString());

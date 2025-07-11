@@ -149,22 +149,120 @@ public class GangesEvaluation {
         PULSENEWS(new AggregationIntegerGeneralizer(Tuple2.of(0, 3)), true),
         TEMP(new AggregationIntegerGeneralizer(Tuple2.of(0, 3)), true),
         TEMPNEWS(new AggregationIntegerGeneralizer(Tuple2.of(0, 3)), true),
-        WAVEFORM(new NonNumericalGeneralizer(new String[][]{
-            {"Other", "Pleth"},
-            {"ECG-Leads", "Standard-Limb-Leads", "I"},
-            {"ECG-Leads", "Standard-Limb-Leads", "II"},
-            {"ECG-Leads", "Standard-Limb-Leads", "III"},
-            {"ECG-Leads", "Augmented-Limb-Leads", "aVR"},
-            {"ECG-Leads", "Augmented-Limb-Leads", "aVL"},
-            {"ECG-Leads", "Augmented-Limb-Leads", "aVF"},
-            {"ECG-Leads", "Chest-Leads", "V1"},
-            {"ECG-Leads", "Chest-Leads", "V2"},
-            {"ECG-Leads", "Chest-Leads", "V3"},
-            {"ECG-Leads", "Chest-Leads", "V4"},
-            {"ECG-Leads", "Chest-Leads", "V5"},
-            {"ECG-Leads", "Chest-Leads", "V6"},
-            {"Other", ""}
-        }), false),
+//        WAVEFORM(new NonNumericalGeneralizer(new String[][]{
+//            {"Other", "Pleth"},
+//            {"ECG-Leads", "Standard-Limb-Leads", "I"},
+//            {"ECG-Leads", "Standard-Limb-Leads", "II"},
+//            {"ECG-Leads", "Standard-Limb-Leads", "III"},
+//            {"ECG-Leads", "Augmented-Limb-Leads", "aVR"},
+//            {"ECG-Leads", "Augmented-Limb-Leads", "aVL"},
+//            {"ECG-Leads", "Augmented-Limb-Leads", "aVF"},
+//            {"ECG-Leads", "Chest-Leads", "V1"},
+//            {"ECG-Leads", "Chest-Leads", "V2"},
+//            {"ECG-Leads", "Chest-Leads", "V3"},
+//            {"ECG-Leads", "Chest-Leads", "V4"},
+//            {"ECG-Leads", "Chest-Leads", "V5"},
+//            {"ECG-Leads", "Chest-Leads", "V6"},
+//            {"Other", ""}
+//        }), false),
+        ICD10(new NonNumericalGeneralizer(new String[][]{
+            {"ICD-10"},
+            {"ICD-10", "A00–B99", "A00–A09"},
+            {"ICD-10", "A00–B99", "A00–A09", "A00"},
+            {"ICD-10", "A00–B99", "A00–A09", "A00", "A00.0"},
+            {"ICD-10", "A00–B99", "A00–A09", "A00", "A00.1"},
+            {"ICD-10", "A00–B99", "A00–A09", "A00", "A00.9"},
+            {"ICD-10", "A00–B99", "A00–A09", "A01"},
+            {"ICD-10", "A00–B99", "A00–A09", "A01", "A01.0"},
+            {"ICD-10", "A00–B99", "A00–A09", "A01", "A01.1"},
+            {"ICD-10", "A00–B99", "A00–A09", "A01", "A01.2"},
+            {"ICD-10", "A00–B99", "A00–A09", "A01", "A01.3"},
+            {"ICD-10", "A00–B99", "A00–A09", "A01", "A01.4"},
+            {"ICD-10", "A00–B99", "A00–A09", "A02"},
+            {"ICD-10", "A00–B99", "A00–A09", "A02", "A02.0"},
+            {"ICD-10", "A00–B99", "A00–A09", "A02", "A02.1"},
+            {"ICD-10", "A00–B99", "A00–A09", "A02", "A02.2"},
+            {"ICD-10", "A00–B99", "A00–A09", "A02", "A02.8"},
+            {"ICD-10", "A00–B99", "A00–A09", "A02", "A02.9"},
+
+            {"ICD-10", "A00–B99", "A15–A19"},
+            {"ICD-10", "A00–B99", "A15–A19", "A15"},
+            {"ICD-10", "A00–B99", "A15–A19", "A15", "A15.0"},
+            {"ICD-10", "A00–B99", "A15–A19", "A15", "A15.1"},
+            {"ICD-10", "A00–B99", "A15–A19", "A15", "A15.2"},
+            {"ICD-10", "A00–B99", "A15–A19", "A15", "A15.3"},
+            {"ICD-10", "A00–B99", "A15–A19", "A15", "A15.4"},
+            {"ICD-10", "A00–B99", "A15–A19", "A15", "A15.5"},
+            {"ICD-10", "A00–B99", "A15–A19", "A15", "A15.6"},
+            {"ICD-10", "A00–B99", "A15–A19", "A15", "A15.7"},
+            {"ICD-10", "A00–B99", "A15–A19", "A15", "A15.8"},
+            {"ICD-10", "A00–B99", "A15–A19", "A15", "A15.9"},
+
+            {"ICD-10", "A00–B99", "A20–A28"},
+            {"ICD-10", "A00–B99", "A20–A28", "A20"},
+            {"ICD-10", "A00–B99", "A20–A28", "A20", "A20.0"},
+            {"ICD-10", "A00–B99", "A20–A28", "A20", "A20.1"},
+            {"ICD-10", "A00–B99", "A20–A28", "A20", "A20.2"},
+            {"ICD-10", "A00–B99", "A20–A28", "A20", "A20.3"},
+            {"ICD-10", "A00–B99", "A20–A28", "A20", "A20.7"},
+            {"ICD-10", "A00–B99", "A20–A28", "A20", "A20.8"},
+            {"ICD-10", "A00–B99", "A20–A28", "A20", "A20.9"},
+
+            {"ICD-10", "A00–B99", "A20–A28", "A21"},
+            {"ICD-10", "A00–B99", "A20–A28", "A21", "A21.0"},
+            {"ICD-10", "A00–B99", "A20–A28", "A21", "A21.1"},
+            {"ICD-10", "A00–B99", "A20–A28", "A21", "A21.2"},
+            {"ICD-10", "A00–B99", "A20–A28", "A21", "A21.3"},
+            {"ICD-10", "A00–B99", "A20–A28", "A21", "A21.7"},
+            {"ICD-10", "A00–B99", "A20–A28", "A21", "A21.8"},
+            {"ICD-10", "A00–B99", "A20–A28", "A21", "A21.9"},
+
+            {"ICD-10", "A00–B99", "A20–A28", "A22"},
+            {"ICD-10", "A00–B99", "A20–A28", "A22", "A22.0"},
+            {"ICD-10", "A00–B99", "A20–A28", "A22", "A22.1"},
+            {"ICD-10", "A00–B99", "A20–A28", "A22", "A22.2"},
+            {"ICD-10", "A00–B99", "A20–A28", "A22", "A22.7"},
+            {"ICD-10", "A00–B99", "A20–A28", "A22", "A22.8"},
+            {"ICD-10", "A00–B99", "A20–A28", "A22", "A22.9"},
+
+            {"ICD-10", "A00–B99", "A20–A28", "A23"},
+            {"ICD-10", "A00–B99", "A20–A28", "A23", "A23.0"},
+            {"ICD-10", "A00–B99", "A20–A28", "A23", "A23.1"},
+            {"ICD-10", "A00–B99", "A20–A28", "A23", "A23.2"},
+            {"ICD-10", "A00–B99", "A20–A28", "A23", "A23.3"},
+            {"ICD-10", "A00–B99", "A20–A28", "A23", "A23.8"},
+            {"ICD-10", "A00–B99", "A20–A28", "A23", "A23.9"},
+
+            {"ICD-10", "A00–B99", "A20–A28", "A24"},
+            {"ICD-10", "A00–B99", "A20–A28", "A24", "A24.0"},
+            {"ICD-10", "A00–B99", "A20–A28", "A24", "A24.1"},
+            {"ICD-10", "A00–B99", "A20–A28", "A24", "A24.2"},
+            {"ICD-10", "A00–B99", "A20–A28", "A24", "A24.3"},
+            {"ICD-10", "A00–B99", "A20–A28", "A24", "A24.4"},
+
+            {"ICD-10", "A00–B99", "A20–A28", "A25"},
+            {"ICD-10", "A00–B99", "A20–A28", "A25", "A25.0"},
+            {"ICD-10", "A00–B99", "A20–A28", "A25", "A25.1"},
+            {"ICD-10", "A00–B99", "A20–A28", "A25", "A25.9"},
+
+            {"ICD-10", "A00–B99", "A20–A28", "A26"},
+            {"ICD-10", "A00–B99", "A20–A28", "A26", "A26.0"},
+            {"ICD-10", "A00–B99", "A20–A28", "A26", "A26.7"},
+            {"ICD-10", "A00–B99", "A20–A28", "A26", "A26.8"},
+            {"ICD-10", "A00–B99", "A20–A28", "A26", "A26.9"},
+
+            {"ICD-10", "A00–B99", "A20–A28", "A27"},
+            {"ICD-10", "A00–B99", "A20–A28", "A27", "A27.0"},
+            {"ICD-10", "A00–B99", "A20–A28", "A27", "A27.8"},
+            {"ICD-10", "A00–B99", "A20–A28", "A27", "A27.9"},
+
+            {"ICD-10", "A00–B99", "A20–A28", "A28"},
+            {"ICD-10", "A00–B99", "A20–A28", "A28", "A28.0"},
+            {"ICD-10", "A00–B99", "A20–A28", "A28", "A28.1"},
+            {"ICD-10", "A00–B99", "A20–A28", "A28", "A28.2"},
+            {"ICD-10", "A00–B99", "A20–A28", "A28", "A28.8"},
+            {"ICD-10", "A00–B99", "A20–A28", "A28", "A28.9"}
+        }), true)
        ;
 
         private final BaseGeneralizer generalizer;
@@ -269,7 +367,7 @@ public class GangesEvaluation {
                 newTuple.setField(jsonNode.get("pulseNEWS").asInt(), 8);
                 newTuple.setField(jsonNode.get("temp").asInt(), 9);
                 newTuple.setField(jsonNode.get("tempNEWS").asInt(), 10);
-                newTuple.setField(jsonNode.get("waveformlabel").asText(), 11);
+                newTuple.setField(jsonNode.get("icd10").asText(), 11);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -295,7 +393,7 @@ public class GangesEvaluation {
             outputJson.put("pulseNEWS", t.getField(8).toString());
             outputJson.put("temp", t.getField(9).toString());
             outputJson.put("tempNEWS", t.getField(10).toString());
-            outputJson.put("waveformlabel", t.getField(11).toString());
+            outputJson.put("icd10", t.getField(11).toString());
             outputJson.put("infoloss", t.getField(12).toString());
 
             LOG.debug(outputJson.toString());

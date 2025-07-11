@@ -9,10 +9,10 @@ from collections import defaultdict
 
 # Prometheus counter for tracking the number of messages
 MESSAGE_COUNTER = Counter('kafka_consumer_messages_total', 'Total number of messages consumed')
-PREDICTED_PULSE_GAUGE = Gauge('kafka_consumer_predicted_pulse', 'Predicted next pulse', ['userid', 'topic', 'waveformlabel'])
-PREDICTED_BPS_GAUGE = Gauge('kafka_consumer_predicted_bps', 'Predicted next BPS', ['userid', 'topic', 'waveformlabel'])
-PREDICTED_SHOCK_GAUGE = Gauge('kafka_consumer_predicted_shock', 'Predicted next shock index', ['userid', 'topic', 'waveformlabel'])
-SHOCK_GAUGE = Gauge('kafka_consumer_shock', 'Shock index', ['userid', 'topic', 'waveformlabel'])
+PREDICTED_PULSE_GAUGE = Gauge('kafka_consumer_predicted_pulse', 'Predicted next pulse', ['userid', 'topic', 'icd10'])
+PREDICTED_BPS_GAUGE = Gauge('kafka_consumer_predicted_bps', 'Predicted next BPS', ['userid', 'topic', 'icd10'])
+PREDICTED_SHOCK_GAUGE = Gauge('kafka_consumer_predicted_shock', 'Predicted next shock index', ['userid', 'topic', 'icd10'])
+SHOCK_GAUGE = Gauge('kafka_consumer_shock', 'Shock index', ['userid', 'topic', 'icd10'])
 
 # Define Kafka consumer configuration
 conf = {
@@ -85,7 +85,7 @@ def train_and_predict(message, topic):
         pulse = message['pulse']
         bps = message['bps']
         userid = message['userid']
-        waveformlabel = message['waveformlabel']
+        icd10 = message['icd10']
 
         # Determine the correct histories based on the topic
         if topic == 'prink-topic':
@@ -105,7 +105,7 @@ def train_and_predict(message, topic):
 
         # Update Shock Index Gauge
         shock_index = int(pulse) / int(bps) if int(bps) != 0 else 0
-        SHOCK_GAUGE.labels(userid=userid, topic=topic, waveformlabel=waveformlabel).set(shock_index)
+        SHOCK_GAUGE.labels(userid=userid, topic=topic, icd10=icd10).set(shock_index)
         print(f"Patient {userid} - Shock Index: {shock_index}")
 
         predicted_pulse = None
@@ -119,7 +119,7 @@ def train_and_predict(message, topic):
             else:
                 pulse_model = train_model(all_pulse_data)
             predicted_pulse = predict_next_value(pulse_model)
-            PREDICTED_PULSE_GAUGE.labels(userid=userid, topic=topic, waveformlabel=waveformlabel).set(predicted_pulse)
+            PREDICTED_PULSE_GAUGE.labels(userid=userid, topic=topic, icd10=icd10).set(predicted_pulse)
             print(f"Patient {userid} - Predicted Pulse: {predicted_pulse}")
 
         # Train or fit BPS model if data is sufficient
@@ -130,13 +130,13 @@ def train_and_predict(message, topic):
             else:
                 bps_model = train_model(all_bps_data)
             predicted_bps = predict_next_value(bps_model)
-            PREDICTED_BPS_GAUGE.labels(userid=userid, topic=topic, waveformlabel=waveformlabel).set(predicted_bps)
+            PREDICTED_BPS_GAUGE.labels(userid=userid, topic=topic, icd10=icd10).set(predicted_bps)
             print(f"Patient {userid} - Predicted BPS: {predicted_bps}")
 
         # Predict shock index
         if predicted_pulse is not None and predicted_bps is not None:
             shock_index = predicted_pulse / predicted_bps if predicted_bps != 0 else 0
-            PREDICTED_SHOCK_GAUGE.labels(userid=userid, topic=topic, waveformlabel=waveformlabel).set(shock_index)
+            PREDICTED_SHOCK_GAUGE.labels(userid=userid, topic=topic, icd10=icd10).set(shock_index)
             print(f"Patient {userid} - Predicted Shock Index: {shock_index}")
 
     except Exception as e:
@@ -192,14 +192,14 @@ def consume_messages():
                 # resp, bps, pulse, temp
                 if 'userid' in message:
                     userid = message['userid']
-                    waveformlabel = message['waveformlabel']
+                    icd10 = message['icd10']
                     topic = msg.topic()
                     
                     for key, value in message.items():
                         # Check if the gauge for this key exists with a 'userid' label
                         if key not in gauges:
                             # Define the gauge with 'userid' as a label
-                            gauges[key] = Gauge(f'kafka_consumer_{key}', f'Kafka consumer {key} value', ['userid', 'topic', 'waveformlabel'])
+                            gauges[key] = Gauge(f'kafka_consumer_{key}', f'Kafka consumer {key} value', ['userid', 'topic', 'icd10'])
                         
                         # Process the value, e.g., if it’s a tuple in string format "(123,456)"
                         if topic == 'prink-topic':# Use the function to process the value
@@ -216,7 +216,7 @@ def consume_messages():
                         print(f"(key, value) = ({key}, {value})")
                         
                         # Set the gauge with the specific 'userid' label value
-                        gauges[key].labels(userid=userid, topic=topic, waveformlabel=waveformlabel).set(value)
+                        gauges[key].labels(userid=userid, topic=topic, icd10=icd10).set(value)
 
                     ## QA use case
                     # check if the 'correct_bed_registration' gauge exists, if not, create it
@@ -242,7 +242,7 @@ def consume_messages():
                             pulse = process_value(pulse)
                             bps = process_value(bps)
                         shock_index = int(pulse) / int(bps) if int(bps) != 0 else 0
-                        SHOCK_GAUGE.labels(userid=userid, topic=topic, waveformlabel=waveformlabel).set(shock_index)
+                        SHOCK_GAUGE.labels(userid=userid, topic=topic, icd10=icd10).set(shock_index)
                         print(f"Patient {userid} - Shock Index: {shock_index}")
 
                     # Predict next values
