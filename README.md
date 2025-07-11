@@ -36,6 +36,7 @@ docker-compose up --build
 ![](else/prediction.png)
 ![](else/parameter_check.png)
 ![](else/news2_dashboard_comp_2.png)
+![](else/icd10_dashboard.png)
 
 
 
