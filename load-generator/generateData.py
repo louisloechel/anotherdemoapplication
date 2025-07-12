@@ -94,11 +94,18 @@ def generate_synthetic_data_for_user(user, num_timestamps=100, interval_minutes=
         user["username"] = "Unknown"
         user["userinitials"] = "XX"
 
+    # generate a starting ICD10 code for the user
+    icd10 = generate_icd10_label()
+
     # Generate entries for each timestamp for this user
     for timestamp_index in range(num_timestamps):
         current_time = start_date + timedelta(minutes=interval_minutes * timestamp_index)
         entry_date = current_time.strftime("%d-%b")
         entry_time = current_time.strftime("%H:%M")
+
+        # randomly change the ICD10 code for this user
+        if random.random() < 0.1:  # 10% chance to change
+            icd10 = generate_icd10_label()
 
         entry = {
             "recordid": str(uuid.uuid4().int)[:5],  # Unique entry identifier
@@ -111,7 +118,7 @@ def generate_synthetic_data_for_user(user, num_timestamps=100, interval_minutes=
             "userinitials": user["userinitials"],
             "username": user["username"],           # firstname lastname
             "userid": user["userid"],
-            "icd10": generate_icd10_label(),
+            "icd10": icd10,
         }
 
         # randomly invalidate single datapoints: 5% chance for username to be "Unknown"
