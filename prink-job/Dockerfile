@@ -12,7 +12,7 @@ COPY src ./src
 RUN mvn clean package
 
 # Stage 2: Create the final image
-FROM flink:latest
+FROM flink:1.19
 
 # Set the working directory
 WORKDIR /prink-job

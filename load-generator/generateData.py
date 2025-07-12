@@ -48,8 +48,26 @@ def generate_oxflow():
 def generate_escalation():
     return random.choice(["Yes", "No"])
 
-def generate_waveform_label():
-    return random.choice(["", "I", "II", "III", "aVR", "aVL", "aVF", "Pleth", "V1", "V2", "V3", "V4", "V5", "V6"]) # waveform labels found in example dataset 
+# def generate_waveform_label():
+#     return random.choice(["", "I", "II", "III", "aVR", "aVL", "aVF", "Pleth", "V1", "V2", "V3", "V4", "V5", "V6"]) # waveform labels found in example dataset 
+
+def generate_icd10_label():
+    icd10_leaf_codes = [
+        "A00.0", "A00.1", "A00.9",
+        "A01.0", "A01.1", "A01.2", "A01.3", "A01.4",
+        "A02.0", "A02.1", "A02.2", "A02.8", "A02.9",
+        "A15.0", "A15.1", "A15.2", "A15.3", "A15.4", "A15.5", "A15.6", "A15.7", "A15.8", "A15.9",
+        "A20.0", "A20.1", "A20.2", "A20.3", "A20.7", "A20.8", "A20.9",
+        "A21.0", "A21.1", "A21.2", "A21.3", "A21.7", "A21.8", "A21.9",
+        "A22.0", "A22.1", "A22.2", "A22.7", "A22.8", "A22.9",
+        "A23.0", "A23.1", "A23.2", "A23.3", "A23.8", "A23.9",
+        "A24.0", "A24.1", "A24.2", "A24.3", "A24.4",
+        "A25.0", "A25.1", "A25.9",
+        "A26.0", "A26.7", "A26.8", "A26.9",
+        "A27.0", "A27.8", "A27.9",
+        "A28.0", "A28.1", "A28.2", "A28.8", "A28.9"
+    ]
+    return random.choice(icd10_leaf_codes)
 
 # Generate unique users with consistent userids
 def generate_users(num_users=10):
@@ -76,35 +94,31 @@ def generate_synthetic_data_for_user(user, num_timestamps=100, interval_minutes=
         user["username"] = "Unknown"
         user["userinitials"] = "XX"
 
+    # generate a starting ICD10 code for the user
+    icd10 = generate_icd10_label()
+
     # Generate entries for each timestamp for this user
     for timestamp_index in range(num_timestamps):
         current_time = start_date + timedelta(minutes=interval_minutes * timestamp_index)
         entry_date = current_time.strftime("%d-%b")
         entry_time = current_time.strftime("%H:%M")
 
+        # randomly change the ICD10 code for this user
+        if random.random() < 0.1:  # 10% chance to change
+            icd10 = generate_icd10_label()
+
         entry = {
             "recordid": str(uuid.uuid4().int)[:5],  # Unique entry identifier
             "date": entry_date,
             "time": entry_time,
             "resp": generate_respiratory_rate(),
-            "oxcode": generate_oxcode(),
-            "oxpercent": generate_oxpercent(),
-            "oxflow": generate_oxflow(),
-            "oxcodename": fake.word(ext_word_list=["reservoir mask", "nasal cannula", "Venturi mask", "humidified oxygen"]),
-            "oxsat": generate_oxygen_saturation(),
-            "oxsatscale": str(random.randint(1, 2)),
             "bps": generate_blood_pressure_systolic(),
-            "bpd": generate_blood_pressure_diastolic(),
             "pulse": generate_pulse(),
-            "acvpu": generate_acvpu(),
             "temp": generate_body_temperature(),
-            "newstotal": generate_newstotal(),
-            "newsrepeat": generate_newsrepeat(),
             "userinitials": user["userinitials"],
             "username": user["username"],           # firstname lastname
             "userid": user["userid"],
-            "escalation": generate_escalation(),
-            "waveformlabel": generate_waveform_label()
+            "icd10": icd10,
         }
 
         # randomly invalidate single datapoints: 5% chance for username to be "Unknown"
