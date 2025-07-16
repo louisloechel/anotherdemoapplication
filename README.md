@@ -25,8 +25,14 @@ This is a demo application for a Master's thesis project.
 
 #### Build & run the docker images:
 ```bash
-docker-compose up --build
+docker compose up --build
 ```
+
+Then visit:
+
+- http://localhost:8081/#/overview
+- http://localhost:3000/login
+- http://localhost:9090/query
 
 #### Grafana:
 - Grafana available at http://localhost:3000
