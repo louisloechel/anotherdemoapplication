@@ -31,7 +31,7 @@ docker compose up --build
 Then visit:
 
 - http://localhost:8081/#/overview
-- http://localhost:3000/login
+- http://localhost:3000/login (1. admin/admin 2. skip)
 - http://localhost:9090/query
 
 #### Grafana:
