@@ -75,7 +75,6 @@ services:
     image: flink:1.19
     command: jobmanager
     ports:
-      - "8081:8081"
       - "9250:9249"  # Prometheus scraping
     environment:
       - |
@@ -84,6 +83,7 @@ services:
         jobmanager.rpc.address: -jobmanager
         metrics.reporter.prom.class: org.apache.flink.metrics.prometheus.PrometheusReporter
         metrics.reporter.prom.port: 9249
+      - FLINK_CONF_DIR=/opt/flink/conf
     volumes:
       - ./flink-conf.yaml:/opt/flink/conf/flink-conf.yaml
     deploy:
@@ -103,13 +103,14 @@ services:
     depends_on:
       - flink-jobmanager
     ports:
-      - "9249"  # dynamic port allocation for metrics, due to replicas
+      - "9251:9249"
     environment:
       - |
         FLINK_PROPERTIES=
         jobmanager.rpc.address: flink-jobmanager
         metrics.reporter.prom.class: org.apache.flink.metrics.prometheus.PrometheusReporter
         metrics.reporter.prom.port: 9249
+      - FLINK_CONF_DIR=/opt/flink/conf
     volumes:
       - ./flink-conf.yaml:/opt/flink/conf/flink-conf.yaml
     deploy:
@@ -130,10 +131,10 @@ services:
       - flink-jobmanager
       - flink-taskmanager
       - kafka-consumer
-    ports:
-      - "8001:8001"  # Prometheus scraping
     environment:
       - JOB_MANAGER_RPC_ADDRESS=flink-jobmanager
+    volumes:
+      - ./flink-conf.yaml:/opt/flink/conf/flink-conf.yaml
     networks:
       - kafka-network
 
