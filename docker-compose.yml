@@ -75,6 +75,7 @@ services:
     image: flink:1.19
     command: jobmanager
     ports:
+      - "8081:8081"
       - "9250:9249"  # Prometheus scraping
     environment:
       - |
