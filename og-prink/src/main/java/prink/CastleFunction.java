@@ -38,6 +38,9 @@ import java.util.stream.Collectors;
  */
 public class CastleFunction<KEY, INPUT extends Tuple, OUTPUT extends Tuple> extends KeyedBroadcastProcessFunction<KEY, INPUT, CastleRule, OUTPUT>
         implements CheckpointedFunction {
+    // Tracks the last released cluster k and l values for metrics
+    private int lastReleasedClusterK = -1;
+    private int lastReleasedClusterL = -1;
 
     // Counter for monitoring
     private transient Counter numSuppressedTuples;
@@ -437,6 +440,18 @@ public class CastleFunction<KEY, INPUT extends Tuple, OUTPUT extends Tuple> exte
         }
 
         for(Cluster cluster: clusters){
+            // Set last released cluster k and l before registering metrics
+            lastReleasedClusterK = cluster.size();
+            lastReleasedClusterL = cluster.diversity(posSensibleAttributes);
+
+            // Expose k and l of released cluster as Prometheus metrics
+            getRuntimeContext().getMetricGroup()
+                .addGroup("Prink", "ReleasedCluster")
+                .gauge("k_of_released_cluster", (Gauge<Integer>) () -> lastReleasedClusterK);
+            getRuntimeContext().getMetricGroup()
+                .addGroup("Prink", "ReleasedCluster")
+                .gauge("l_of_released_cluster", (Gauge<Integer>) () -> lastReleasedClusterL);
+
             // When in DEBUG log mode make an additional check if l-diversity and k-anonymity is fulfilled. This should never trigger and is only an addition protection measure to ensure and check privacy guarantees on a new job implementation
             if(LOG.isDebugEnabled() && (cluster.diversity(posSensibleAttributes) < l || cluster.size() < k)){
                 LOG.error("Cluster diversity when generalized is lower then l or k is not high enough! l: {} diversity: {} | k: {} cluster.size: {}", l, input.diversity(posSensibleAttributes), k, cluster.size());
@@ -885,6 +900,13 @@ public class CastleFunction<KEY, INPUT extends Tuple, OUTPUT extends Tuple> exte
         getRuntimeContext()
                 .getMetricGroup()
                 .gauge("Prink", (Gauge<CastleRule[]>) () -> rules);
+        // ReleasedCluster k/l gauges use lastReleasedClusterK/L set in outputCluster
+        getRuntimeContext().getMetricGroup()
+                .addGroup("Prink", "ReleasedCluster")
+                .gauge("k_of_released_cluster", (Gauge<Integer>) () -> lastReleasedClusterK);
+        getRuntimeContext().getMetricGroup()
+                .addGroup("Prink", "ReleasedCluster")
+                .gauge("l_of_released_cluster", (Gauge<Integer>) () -> lastReleasedClusterL);
         // Counter section
         this.numSuppressedTuples = getRuntimeContext()
                 .getMetricGroup()
