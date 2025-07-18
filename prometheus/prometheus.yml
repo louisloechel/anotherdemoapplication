@@ -5,12 +5,12 @@ scrape_configs:
   - job_name: "kafka_consumer"
     static_configs:
       - targets: ["kafka-consumer:8000"]
-  - job_name: "prink_job"
-    static_configs:
-      - targets: ["prink-job:8002"]
+  # - job_name: "og_prink_job"
+  #   static_configs:
+  #     - targets: ["og-prink-job:9252"]
   - job_name: "flink_job"
     static_configs:
-      - targets: ["flink-job:8003"]
+      - targets: ["flink-job:9249"]
 
   - job_name: "flink_jobmanager_metrics"
     static_configs:
