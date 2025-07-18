@@ -39,6 +39,7 @@ Then visit:
 - Dashboard json reference located at ```grafana/NEWS2 Dashboard...json```
 
 ##### Dashboard Views
+![](else/dashboard_privacy_params.png)
 ![](else/prediction.png)
 ![](else/parameter_check.png)
 ![](else/news2_dashboard_comp_2.png)
