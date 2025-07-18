@@ -43,8 +43,8 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 public class GangesEvaluation {
 
-    int k = 5;
-    int l = 1;
+    int k = 11;
+    int l = 3;
     int delta = 20;
     int beta = 50;
     int zeta = 10;
