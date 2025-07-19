@@ -101,10 +101,10 @@ public class GangesEvaluation {
         FlinkKafkaConsumer<String> consumer = new FlinkKafkaConsumer<>("processed-topic", new SimpleStringSchema(), properties);
         
         // Create a stream of custom elements and apply transformations
-        SingleOutputStreamOperator<Tuple12<Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object>> source = env.addSource(consumer).map(new JsonToTuple<>());
+        SingleOutputStreamOperator<Tuple13<Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object>> source = env.addSource(consumer).map(new JsonToTuple<>());
 
-        DataStream<Tuple13<Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object>> dataStream = source
-            .returns(TypeInformation.of(new TypeHint<Tuple12<Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object>>() {
+        DataStream<Tuple14<Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object>> dataStream = source
+            .returns(TypeInformation.of(new TypeHint<Tuple13<Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object>>() {
                 }))
             .filter(tuple -> {
                 Object key = tuple.getField(0);
@@ -116,18 +116,18 @@ public class GangesEvaluation {
             })
             .keyBy(tuple -> tuple.getField(0))
             .connect(ruleBroadcastStream)
-            .process(new CastleFunction<Long, Tuple12<Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object>, Tuple13<Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object>>(
+            .process(new CastleFunction<Long, Tuple13<Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object>, Tuple14<Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object>>(
                 0, k, l, delta, beta, zeta, mu, true, 2, rules))
-            .returns(TypeInformation.of(new TypeHint<Tuple13<Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object>>() {
+            .returns(TypeInformation.of(new TypeHint<Tuple14<Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object>>() {
                 }))
             .name(evalDescription);
 
         // Create a Kafka sink
-        KafkaSink<Tuple13<Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object>> sink = KafkaSink.<Tuple13<Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object>>builder()
+        KafkaSink<Tuple14<Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object>> sink = KafkaSink.<Tuple14<Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object>>builder()
         .setBootstrapServers("kafka:29092") // "127.0.0.1:9092" "kafka:29092"
         .setRecordSerializer(KafkaRecordSerializationSchema.builder()
             .setTopic("prink-topic")
-            .setValueSerializationSchema(new TupleToJson<Tuple13<Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object>>())
+            .setValueSerializationSchema(new TupleToJson<Tuple14<Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object>>())
             .build())
         .build();
 
@@ -262,7 +262,8 @@ public class GangesEvaluation {
             {"ICD-10", "A00–B99", "A20–A28", "A28", "A28.2"},
             {"ICD-10", "A00–B99", "A20–A28", "A28", "A28.8"},
             {"ICD-10", "A00–B99", "A20–A28", "A28", "A28.9"}
-        }), true)
+        }), true),
+        TIMESTAMP(new NoneGeneralizer(), false)
        ;
 
         private final BaseGeneralizer generalizer;
@@ -354,7 +355,7 @@ public class GangesEvaluation {
         public T map(String s) throws Exception {
             ObjectMapper objectMapper = new ObjectMapper();
             JsonNode jsonNode = objectMapper.readTree(s);
-            T newTuple = (T) Tuple.newInstance(12);
+            T newTuple = (T) Tuple.newInstance(13);
             try {
                 newTuple.setField(jsonNode.get("recordid").asInt(), 0);
                 newTuple.setField(jsonNode.get("userid").asText(), 1);  // needs to be string, because of leading 0
@@ -368,6 +369,7 @@ public class GangesEvaluation {
                 newTuple.setField(jsonNode.get("temp").asInt(), 9);
                 newTuple.setField(jsonNode.get("tempNEWS").asInt(), 10);
                 newTuple.setField(jsonNode.get("icd10").asText(), 11);
+                newTuple.setField(jsonNode.get("timestamp").asText(), 12);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -394,7 +396,8 @@ public class GangesEvaluation {
             outputJson.put("temp", t.getField(9).toString());
             outputJson.put("tempNEWS", t.getField(10).toString());
             outputJson.put("icd10", t.getField(11).toString());
-            outputJson.put("infoloss", t.getField(12).toString());
+            outputJson.put("timestamp", t.getField(12).toString());
+            outputJson.put("infoloss", t.getField(13).toString());
 
             LOG.debug(outputJson.toString());
             return outputJson.toString().getBytes(StandardCharsets.UTF_8);

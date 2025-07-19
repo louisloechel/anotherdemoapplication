@@ -14,6 +14,7 @@ PREDICTED_BPS_GAUGE = Gauge('kafka_consumer_predicted_bps', 'Predicted next BPS'
 PREDICTED_SHOCK_GAUGE = Gauge('kafka_consumer_predicted_shock', 'Predicted next shock index', ['userid', 'topic', 'icd10'])
 SHOCK_GAUGE = Gauge('kafka_consumer_shock', 'Shock index', ['userid', 'topic', 'icd10'])
 ICD10_LAST_SEEN = Gauge('kafka_consumer_icd10_last_seen', 'Latest icd10 code seen per userid and topic', ['userid', 'topic', 'icd10'])
+PROCESSING_LATENCY = Gauge('kafka_consumer_processing_latency_ms', 'Processing latency in milliseconds', ['userid', 'topic', 'icd10'])
 
 # Define Kafka consumer configuration
 conf = {
@@ -184,6 +185,7 @@ def consume_messages():
                     raise KafkaException(msg.error())
             else:
                 # Properly received a message
+                time_now = time.time()
                 msg_content = msg.value()
                 print(f"Received message: {msg_content}")
                 message = json.loads(msg_content.decode('utf-8'))
@@ -196,6 +198,9 @@ def consume_messages():
                     icd10 = message['icd10']
                     topic = msg.topic()
                     
+                    # Set the processing latency for this message
+                    PROCESSING_LATENCY.labels(userid=userid, topic=topic, icd10=icd10).set(time.time() - time_now)
+
                     # Set/update the icd10_last_seen Gauge for Prometheus
                     ICD10_LAST_SEEN.labels(userid=userid, topic=topic, icd10=icd10).set(1)
 

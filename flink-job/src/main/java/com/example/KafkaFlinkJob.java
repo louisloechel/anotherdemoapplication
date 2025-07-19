@@ -48,6 +48,7 @@ public class KafkaFlinkJob {
                 int pulse = jsonNode.get("pulse").asInt();
                 double temp = jsonNode.get("temp").asDouble();
                 String icd10 = jsonNode.get("icd10").asText();
+                String timestamp = jsonNode.get("timestamp").asText();
 
                 // Log the received message
                 LOG.info("[flink-job] Received message: {}", jsonNode);
@@ -153,6 +154,7 @@ public class KafkaFlinkJob {
                 outputJson.put("temp", temp);
                 outputJson.put("tempNEWS", newsTempScore);
                 outputJson.put("icd10", icd10);
+                outputJson.put("timestamp", timestamp);
 
                 // Collect the JSON string
                 out.collect(outputJson.toString());

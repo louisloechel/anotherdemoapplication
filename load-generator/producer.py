@@ -63,7 +63,10 @@ def main():
                 for data in datasets:
                     # message = #message_count entry in data.json
                     message = data[message_count]
-                    loaded_message = json.dumps(message).encode('utf-8')
+                    # Add a precise timestamp to the message
+                    message_with_timestamp = dict(message)
+                    message_with_timestamp['timestamp'] = time.strftime('%Y-%m-%dT%H:%M:%S.') + f"{int(time.time() * 1000) % 1000:03d}Z"
+                    loaded_message = json.dumps(message_with_timestamp).encode('utf-8')
                     print(f'{time.strftime("%Y-%m-%d %H:%M:%S")} Loaded message: {loaded_message}', flush=True)
                     try:
                         producer.send(topic, value=loaded_message)
