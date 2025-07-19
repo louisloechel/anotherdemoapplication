@@ -1,5 +1,5 @@
 from confluent_kafka import Consumer, KafkaError, KafkaException # type: ignore
-from prometheus_client import start_http_server, Counter, Gauge # type: ignore
+from prometheus_client import start_http_server, Counter, Gauge, Info # type: ignore
 import json
 import os
 import time
@@ -13,6 +13,7 @@ PREDICTED_PULSE_GAUGE = Gauge('kafka_consumer_predicted_pulse', 'Predicted next 
 PREDICTED_BPS_GAUGE = Gauge('kafka_consumer_predicted_bps', 'Predicted next BPS', ['userid', 'topic', 'icd10'])
 PREDICTED_SHOCK_GAUGE = Gauge('kafka_consumer_predicted_shock', 'Predicted next shock index', ['userid', 'topic', 'icd10'])
 SHOCK_GAUGE = Gauge('kafka_consumer_shock', 'Shock index', ['userid', 'topic', 'icd10'])
+ICD10_LAST_SEEN = Gauge('kafka_consumer_icd10_last_seen', 'Latest icd10 code seen per userid and topic', ['userid', 'topic', 'icd10'])
 
 # Define Kafka consumer configuration
 conf = {
@@ -195,6 +196,9 @@ def consume_messages():
                     icd10 = message['icd10']
                     topic = msg.topic()
                     
+                    # Set/update the icd10_last_seen Gauge for Prometheus
+                    ICD10_LAST_SEEN.labels(userid=userid, topic=topic, icd10=icd10).set(1)
+
                     for key, value in message.items():
                         # Check if the gauge for this key exists with a 'userid' label
                         if key not in gauges:
