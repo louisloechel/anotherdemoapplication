@@ -6,6 +6,8 @@ import time
 import numpy as np
 from statsmodels.tsa.holtwinters import SimpleExpSmoothing
 from collections import defaultdict
+from datetime import datetime
+from concurrent.futures import ThreadPoolExecutor
 
 # Prometheus counter for tracking the number of messages
 MESSAGE_COUNTER = Counter('kafka_consumer_messages_total', 'Total number of messages consumed')
@@ -14,7 +16,7 @@ PREDICTED_BPS_GAUGE = Gauge('kafka_consumer_predicted_bps', 'Predicted next BPS'
 PREDICTED_SHOCK_GAUGE = Gauge('kafka_consumer_predicted_shock', 'Predicted next shock index', ['userid', 'topic', 'icd10'])
 SHOCK_GAUGE = Gauge('kafka_consumer_shock', 'Shock index', ['userid', 'topic', 'icd10'])
 ICD10_LAST_SEEN = Gauge('kafka_consumer_icd10_last_seen', 'Latest icd10 code seen per userid and topic', ['userid', 'topic', 'icd10'])
-PROCESSING_LATENCY = Gauge('kafka_consumer_processing_latency_ms', 'Processing latency in milliseconds', ['userid', 'topic', 'icd10'])
+PROCESSING_LATENCY = Gauge('kafka_consumer_processing_latency', 'Processing latency in seconds', ['userid', 'topic'])
 
 # Define Kafka consumer configuration
 conf = {
@@ -31,7 +33,7 @@ raw = 'raw-topic'
 processed = 'processed-topic'
 prink = 'prink-topic'
 
-topics = [processed, prink]
+topics = [raw, processed, prink]
 consumer.subscribe(topics)
 
 # Prometheus metrics
@@ -79,7 +81,7 @@ def predict_next_value(model):
 
 def train_and_predict(message, topic):
     # Processes each incoming message.
-    print(f"Processing message: {message}")
+    # print(f"Processing message: {message}")
     global pulse_history, bps_history, pulse_history_prink, bps_history_prink, pulse_model, bps_model
 
     # Parse the message
@@ -108,7 +110,7 @@ def train_and_predict(message, topic):
         # Update Shock Index Gauge
         shock_index = int(pulse) / int(bps) if int(bps) != 0 else 0
         SHOCK_GAUGE.labels(userid=userid, topic=topic, icd10=icd10).set(shock_index)
-        print(f"Patient {userid} - Shock Index: {shock_index}")
+        # print(f"Patient {userid} - Shock Index: {shock_index}")
 
         predicted_pulse = None
         predicted_bps = None
@@ -122,7 +124,7 @@ def train_and_predict(message, topic):
                 pulse_model = train_model(all_pulse_data)
             predicted_pulse = predict_next_value(pulse_model)
             PREDICTED_PULSE_GAUGE.labels(userid=userid, topic=topic, icd10=icd10).set(predicted_pulse)
-            print(f"Patient {userid} - Predicted Pulse: {predicted_pulse}")
+            # print(f"Patient {userid} - Predicted Pulse: {predicted_pulse}")
 
         # Train or fit BPS model if data is sufficient
         all_bps_data = [bps for history in current_bps_history.values() for bps in history]
@@ -133,13 +135,13 @@ def train_and_predict(message, topic):
                 bps_model = train_model(all_bps_data)
             predicted_bps = predict_next_value(bps_model)
             PREDICTED_BPS_GAUGE.labels(userid=userid, topic=topic, icd10=icd10).set(predicted_bps)
-            print(f"Patient {userid} - Predicted BPS: {predicted_bps}")
+            # print(f"Patient {userid} - Predicted BPS: {predicted_bps}")
 
         # Predict shock index
         if predicted_pulse is not None and predicted_bps is not None:
             shock_index = predicted_pulse / predicted_bps if predicted_bps != 0 else 0
             PREDICTED_SHOCK_GAUGE.labels(userid=userid, topic=topic, icd10=icd10).set(shock_index)
-            print(f"Patient {userid} - Predicted Shock Index: {shock_index}")
+            # print(f"Patient {userid} - Predicted Shock Index: {shock_index}")
 
     except Exception as e:
         print(f"Error processing message: {e}")
@@ -159,6 +161,56 @@ def process_value(value):
         value = round(value_avg, 0)
     return value
 
+def handle_message(message, topic, time_now):
+    try:
+        userid = message['userid']
+        icd10 = message['icd10']
+        timestamp_str = message.get('timestamp')
+        if timestamp_str:
+            timestamp_dt = datetime.strptime(timestamp_str, "%Y-%m-%dT%H:%M:%S.%fZ")
+            timestamp = timestamp_dt.timestamp()
+            delta = time_now - timestamp
+            PROCESSING_LATENCY.labels(userid=userid, topic=topic).set(delta)
+            print(f"Processing latency for {userid} on topic {topic}: {delta:.2f} seconds", flush=True)
+
+        ICD10_LAST_SEEN.labels(userid=userid, topic=topic, icd10=icd10).set(1)
+
+        for key, value in message.items():
+            if key not in gauges:
+                gauges[key] = Gauge(f'kafka_consumer_{key}', f'Kafka consumer {key} value', ['userid', 'topic', 'icd10'])
+            if topic == 'prink-topic':
+                processed_value = process_value(value)
+                if processed_value is not None:
+                    value = processed_value
+            try:
+                value = float(value)
+            except ValueError:
+                continue
+            gauges[key].labels(userid=userid, topic=topic, icd10=icd10).set(value)
+
+        if 'correct_bed_registration' not in gauges:
+            gauges['correct_bed_registration'] = Gauge('kafka_consumer_correct_bed_registration', 'Kafka consumer correct bed registration', ['userid', 'topic'])
+
+        username = message['username']
+        uid = str(message['userid'])
+        if username != "Unknown" and len(uid) == 7 and uid.startswith("03"):
+            gauges['correct_bed_registration'].labels(userid=userid, topic=topic).set(1)
+        else:
+            gauges['correct_bed_registration'].labels(userid=userid, topic=topic).set(0)
+
+        if 'pulse' in message and 'bps' in message:
+            pulse = message['pulse']
+            bps = message['bps']
+            if topic == 'prink-topic':
+                pulse = process_value(pulse)
+                bps = process_value(bps)
+            shock_index = int(pulse) / int(bps) if int(bps) != 0 else 0
+            SHOCK_GAUGE.labels(userid=userid, topic=topic, icd10=icd10).set(shock_index)
+
+        train_and_predict(message, topic)
+    except Exception as e:
+        print(f"Error in handle_message: {e}", flush=True)
+
 # Wait for the topic to be available
 sleeptime = 10
 print(f"Waiting {sleeptime}s for Kafka topics {topics} to be available...", flush=True)
@@ -168,94 +220,30 @@ print("Starting consumer...", flush=True)
 def consume_messages():
     print(f"Subscribing to Kafka topics: {topics}", flush=True)
     try:
-        while True:
-            msg = consumer.poll(timeout=1.0)  # Poll for a new message from the topic
+        with ThreadPoolExecutor(max_workers=4) as executor:
+            while True:
+                msg = consumer.poll(timeout=1.0)  # Poll for a new message from the topic
 
-            if msg is None:
-                # No new message available, continue polling
-                print("No new message available, continuing polling...")
-                continue
+                if msg is None:
+                    # No new message available, continue polling
+                    print("No new message available, continuing polling...")
+                    continue
 
-            if msg.error():
-                # Handle any errors in message consumption
-                if msg.error().code() == KafkaError._PARTITION_EOF:
-                    # End of partition, nothing wrong, just move on
-                    print(f"End of partition reached {msg.topic()} [{msg.partition()}] at offset {msg.offset()}")
-                elif msg.error():
-                    raise KafkaException(msg.error())
-            else:
-                # Properly received a message
-                time_now = time.time()
-                msg_content = msg.value()
-                print(f"Received message: {msg_content}")
-                message = json.loads(msg_content.decode('utf-8'))
+                if msg.error():
+                    # Handle any errors in message consumption
+                    if msg.error().code() == KafkaError._PARTITION_EOF:
+                        # End of partition, nothing wrong, just move on
+                        print(f"End of partition reached {msg.topic()} [{msg.partition()}] at offset {msg.offset()}")
+                    elif msg.error():
+                        raise KafkaException(msg.error())
+                else:
+                    # Properly received a message
+                    time_now = time.time()
+                    msg_content = msg.value()
+                    # print(f"Received message: {msg_content}")
+                    message = json.loads(msg_content.decode('utf-8'))
 
-                print(f"Received message: message={message} from topic: {msg.topic()}")
-                # Export specific values from the message to Prometheus metrics
-                # resp, bps, pulse, temp
-                if 'userid' in message:
-                    userid = message['userid']
-                    icd10 = message['icd10']
-                    topic = msg.topic()
-                    
-                    # Set the processing latency for this message
-                    PROCESSING_LATENCY.labels(userid=userid, topic=topic, icd10=icd10).set(time.time() - time_now)
-
-                    # Set/update the icd10_last_seen Gauge for Prometheus
-                    ICD10_LAST_SEEN.labels(userid=userid, topic=topic, icd10=icd10).set(1)
-
-                    for key, value in message.items():
-                        # Check if the gauge for this key exists with a 'userid' label
-                        if key not in gauges:
-                            # Define the gauge with 'userid' as a label
-                            gauges[key] = Gauge(f'kafka_consumer_{key}', f'Kafka consumer {key} value', ['userid', 'topic', 'icd10'])
-                        
-                        # Process the value, e.g., if it’s a tuple in string format "(123,456)"
-                        if topic == 'prink-topic':# Use the function to process the value
-                            processed_value = process_value(value)
-                            if processed_value is not None:
-                                value = processed_value
-
-                        # Convert the value to a numeric type if needed, e.g., int or float
-                        try:
-                            value = float(value)
-                        except ValueError:
-                            continue  # or handle the error as appropriate
-                        
-                        print(f"(key, value) = ({key}, {value})")
-                        
-                        # Set the gauge with the specific 'userid' label value
-                        gauges[key].labels(userid=userid, topic=topic, icd10=icd10).set(value)
-
-                    ## QA use case
-                    # check if the 'correct_bed_registration' gauge exists, if not, create it
-                    if 'correct_bed_registration' not in gauges:
-                        gauges['correct_bed_registration'] = Gauge('kafka_consumer_correct_bed_registration', 'Kafka consumer correct bed registration', ['userid', 'topic'])
-
-                    # Set the bool gauge for correct bed registration to true, if:
-                    # - username is not "Unknown"
-                    # - recordis has length 7 and starts with "03"
-                    username = message['username']
-                    uid = str(message['userid'])
-                    if username != "Unknown" and len(uid) == 7 and uid.startswith("03"):
-                        gauges['correct_bed_registration'].labels(userid=userid, topic=topic).set(1)
-                    else:
-                        gauges['correct_bed_registration'].labels(userid=userid, topic=topic).set(0)
-
-                    ## Prediction use case
-                    # Expose Shock Index Gauge
-                    if 'pulse' in message and 'bps' in message:
-                        pulse = message['pulse']
-                        bps = message['bps']
-                        if topic == 'prink-topic':
-                            pulse = process_value(pulse)
-                            bps = process_value(bps)
-                        shock_index = int(pulse) / int(bps) if int(bps) != 0 else 0
-                        SHOCK_GAUGE.labels(userid=userid, topic=topic, icd10=icd10).set(shock_index)
-                        print(f"Patient {userid} - Shock Index: {shock_index}")
-
-                    # Predict next values
-                    train_and_predict(message, topic)
+                    executor.submit(handle_message, message, msg.topic(), time_now)
 
                 MESSAGE_COUNTER.inc()  # Increment the Prometheus counter for each message consumed
     except KeyboardInterrupt:
