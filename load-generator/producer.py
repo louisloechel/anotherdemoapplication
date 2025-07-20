@@ -5,7 +5,8 @@ import json
 import traceback
 import os
 
-SLEEP_TIME = 5  # previously 1
+SLEEP_TIME = 5
+#  0.002  # 500Hz frequency (1/500 seconds)
 
 def main():
     folder = 'output_json_files/'
