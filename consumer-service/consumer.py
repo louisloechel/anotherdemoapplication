@@ -111,12 +111,12 @@ def train_and_predict(message, topic):
         shock_index = int(pulse) / int(bps) if int(bps) != 0 else 0
         SHOCK_GAUGE.labels(userid=userid, topic=topic, icd10=icd10).set(shock_index)
         # print(f"Patient {userid} - Shock Index: {shock_index}")
-
         predicted_pulse = None
         predicted_bps = None
 
         # Train or fit pulse model if data is sufficient
         all_pulse_data = [pulse for history in current_pulse_history.values() for pulse in history]
+        
         if len(all_pulse_data) >= TRAINING_THRESHOLD:
             if pulse_model:
                 pulse_model = fit_model(pulse_model, all_pulse_data)
@@ -171,7 +171,7 @@ def handle_message(message, topic, time_now):
             timestamp = timestamp_dt.timestamp()
             delta = time_now - timestamp
             PROCESSING_LATENCY.labels(userid=userid, topic=topic).set(delta)
-            print(f"Processing latency for {userid} on topic {topic}: {delta:.2f} seconds", flush=True)
+            # print(f"Processing latency for {userid} on topic {topic}: {delta:.2f} seconds", flush=True)
 
         ICD10_LAST_SEEN.labels(userid=userid, topic=topic, icd10=icd10).set(1)
 
@@ -207,7 +207,10 @@ def handle_message(message, topic, time_now):
             shock_index = int(pulse) / int(bps) if int(bps) != 0 else 0
             SHOCK_GAUGE.labels(userid=userid, topic=topic, icd10=icd10).set(shock_index)
 
-        train_and_predict(message, topic)
+        """
+        Uncomment the following line to enable pulse prediction
+        """
+        # train_and_predict(message, topic)
     except Exception as e:
         print(f"Error in handle_message: {e}", flush=True)
 
