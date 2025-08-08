@@ -1,4 +1,4 @@
-# anotherdemoapplication
+# Anonymization of Medical Data Streams using [Prink](https://github.com/PrivacyEngineering/prink)
 
 ![](else/architecture_prink.png)
 
